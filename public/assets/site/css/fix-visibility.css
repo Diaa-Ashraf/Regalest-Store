@@ -1,0 +1,62 @@
+/* Fix Section Title Visibility */
+.section-title h2,
+.section-title h2.text-gradient {
+    color: #000000 !important;
+    background: none !important;
+    -webkit-text-fill-color: #000000 !important;
+}
+
+.latest-product__text h4,
+.latest-product__text h4.text-gradient {
+    color: #000000 !important;
+    background: none !important;
+    -webkit-text-fill-color: #000000 !important;
+}
+
+.latest-product__text h4 i {
+    color: #000000 !important;
+}
+
+/* Fix Categories Section Visibility */
+.luxury-category-section {
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    padding: 50px 0 !important;
+    background: #f8f9fa !important;
+}
+
+.luxury-section-title {
+    display: block !important;
+    visibility: visible !important;
+    text-align: center;
+    margin-bottom: 40px;
+}
+
+.luxury-section-title h2 {
+    color: #1a1a1a !important;
+    -webkit-text-fill-color: #1a1a1a !important;
+    font-size: 28px !important;
+    font-weight: 700 !important;
+}
+
+.luxury-section-title p {
+    color: #666 !important;
+    font-size: 15px !important;
+}
+
+/* Ensure category cards are visible */
+.luxury-cat-card {
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+}
+
+#luxury-cat-slider {
+    display: block !important;
+    visibility: visible !important;
+}
+
+#luxury-cat-slider .owl-stage-outer {
+    overflow: visible;
+}

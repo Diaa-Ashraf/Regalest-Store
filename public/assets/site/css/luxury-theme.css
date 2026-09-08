@@ -1,0 +1,278 @@
+/* ==========================================================================
+   Regalest Store — Warm Editorial Luxury Design System
+   ========================================================================== */
+
+:root {
+    --gold-primary: #C5A059;
+    --gold-light: #D4B26F;
+    --gold-dark: #9A7732;
+    --gold-gradient: linear-gradient(135deg, #D4B26F 0%, #C5A059 50%, #B38E44 100%);
+    --gold-glow: rgba(197, 160, 89, 0.2);
+    
+    --bg-main: #F8F6F2;
+    --bg-card: #FFFFFF;
+    --bg-elevated: #F3EFEA;
+    --bg-glass: rgba(255, 255, 255, 0.92);
+
+    --border-subtle: #EADBCC;
+    --border-gold: #C5A059;
+
+    --text-primary: #18181B;
+    --text-secondary: #52525B;
+    --text-muted: #71717A;
+    --text-gold: #C5A059;
+
+    --transition-smooth: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+body.luxury-theme {
+    background-color: var(--bg-main);
+    color: var(--text-primary);
+    font-family: 'Readex Pro', 'Plus Jakarta Sans', sans-serif;
+    overflow-x: hidden;
+}
+
+/* Gold Gradient Text Utility */
+.text-gold-gradient {
+    background: var(--gold-gradient);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    display: inline-block;
+}
+
+/* Glassmorphism Header */
+.luxury-navbar {
+    background: var(--bg-glass);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border-bottom: 1px solid var(--border-subtle);
+    transition: var(--transition-smooth);
+}
+
+/* Luxury Buttons */
+.btn-gold {
+    background: var(--gold-gradient);
+    color: #000000 !important;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    border: none;
+    border-radius: 8px;
+    padding: 12px 28px;
+    transition: var(--transition-smooth);
+    box-shadow: 0 4px 18px var(--gold-glow);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    text-decoration: none;
+}
+
+.btn-gold:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 24px rgba(201, 168, 76, 0.45);
+    color: #000000 !important;
+}
+
+.btn-outline-gold {
+    background: transparent;
+    color: var(--gold-primary) !important;
+    border: 1px solid var(--gold-primary);
+    font-weight: 600;
+    border-radius: 8px;
+    padding: 10px 24px;
+    transition: var(--transition-smooth);
+    text-decoration: none;
+}
+
+.btn-outline-gold:hover {
+    background: var(--gold-primary);
+    color: #000000 !important;
+    box-shadow: 0 4px 16px var(--gold-glow);
+}
+
+/* Product Card */
+.regalest-product-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-subtle);
+    border-radius: 14px;
+    overflow: hidden;
+    transition: var(--transition-smooth);
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+.regalest-product-card:hover {
+    transform: translateY(-6px);
+    border-color: var(--border-gold);
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.6), 0 0 20px rgba(201, 168, 76, 0.12);
+}
+
+.product-image-box {
+    position: relative;
+    width: 100%;
+    padding-top: 100%; /* 1:1 Aspect ratio */
+    background: #0d0d0d;
+    overflow: hidden;
+}
+
+.product-image-box img {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.regalest-product-card:hover .product-image-box img {
+    transform: scale(1.08);
+}
+
+/* Badges */
+.badge-luxury-discount {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    background: #E53935;
+    color: #FFFFFF;
+    font-size: 0.75rem;
+    font-weight: 700;
+    padding: 4px 10px;
+    border-radius: 6px;
+    z-index: 2;
+}
+
+.badge-luxury-featured {
+    position: absolute;
+    top: 12px;
+    left: 12px;
+    background: var(--gold-gradient);
+    color: #000000;
+    font-size: 0.72rem;
+    font-weight: 800;
+    padding: 4px 10px;
+    border-radius: 6px;
+    z-index: 2;
+    box-shadow: 0 2px 8px var(--gold-glow);
+}
+
+/* Wishlist Button */
+.btn-wishlist-toggle {
+    position: absolute;
+    bottom: 12px;
+    right: 12px;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: rgba(0, 0, 0, 0.7);
+    border: 1px solid var(--border-subtle);
+    color: #FFFFFF;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: var(--transition-smooth);
+    z-index: 3;
+}
+
+.btn-wishlist-toggle:hover, .btn-wishlist-toggle.active {
+    background: #E53935;
+    border-color: #E53935;
+    color: #FFFFFF;
+    transform: scale(1.1);
+}
+
+/* Product Info */
+.product-card-body {
+    padding: 18px;
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+}
+
+.product-category-label {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    margin-bottom: 4px;
+}
+
+.product-title {
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 10px;
+    display: -webkit-box;
+    -webkit-line-clamp: 1;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.product-price-wrapper {
+    margin-top: auto;
+    margin-bottom: 14px;
+}
+
+.price-main {
+    font-size: 1.25rem;
+    font-weight: 800;
+    color: var(--gold-primary);
+}
+
+.price-old {
+    font-size: 0.9rem;
+    color: var(--text-muted);
+    text-decoration: line-through;
+    margin-inline-start: 8px;
+}
+
+.price-syp-subtitle {
+    font-size: 0.82rem;
+    color: var(--text-secondary);
+    display: block;
+    margin-top: 2px;
+}
+
+.btn-add-to-cart {
+    width: 100%;
+    background: #1F1F1F;
+    color: var(--text-primary);
+    border: 1px solid var(--border-subtle);
+    padding: 10px;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 0.95rem;
+    transition: var(--transition-smooth);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.btn-add-to-cart:hover {
+    background: var(--gold-primary);
+    color: #000000;
+    border-color: var(--gold-primary);
+    box-shadow: 0 4px 14px var(--gold-glow);
+}
+
+/* Currency Switcher Badge */
+.currency-switcher-btn {
+    background: #1c1c1c;
+    border: 1px solid var(--border-gold);
+    color: var(--gold-primary);
+    border-radius: 20px;
+    padding: 4px 14px;
+    font-size: 0.85rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: var(--transition-smooth);
+}
+
+.currency-switcher-btn:hover {
+    background: var(--gold-primary);
+    color: #000;
+}

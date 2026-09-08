@@ -1,0 +1,98 @@
+/*---------------------------------------------
+  18. Amazon Deals Layout (Custom)
+---------------------------------------------*/
+.amazon-deals-section {
+    background-color: #e3e6e6;
+    /* Light gray background */
+    padding: 20px 0;
+    margin-top: 20px;
+}
+
+.amazon-deals-header-strip {
+    background: #ffffff;
+    padding: 10px 20px;
+    margin-bottom: 20px;
+    border-bottom: 1px solid #ddd;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.amazon-deals-title {
+    font-size: 24px;
+    font-weight: 700;
+    color: #0F1111;
+}
+
+.amazon-deals-link {
+    color: #007185;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.amazon-deals-link:hover {
+    color: #c7511f;
+    text-decoration: underline;
+}
+
+/* Card Styling */
+.deal-card {
+    background: #fff;
+    padding: 15px;
+    height: 100%;
+    min-height: 420px;
+    border: 1px solid #eee;
+    /* Subtle border */
+    display: flex;
+    flex-direction: column;
+}
+
+.deal-card h3 {
+    font-size: 21px;
+    font-weight: 700;
+    color: #0F1111;
+    margin-bottom: 15px;
+}
+
+.deal-card img {
+    max-height: 300px;
+    width: auto;
+    max-width: 100%;
+    margin: 0 auto;
+    display: block;
+}
+
+.deal-card-footer {
+    margin-top: auto;
+    padding-top: 15px;
+}
+
+.deal-card-footer a {
+    color: #007185;
+    font-weight: 500;
+    font-size: 13px;
+}
+
+.deal-card-footer a:hover {
+    color: #c7511f;
+    text-decoration: underline;
+}
+
+/* Orange Background Variant (Holiday/Special) */
+.bg-amazon-orange {
+    background-color: #febd69 !important;
+    /* Holiday yellow/orange */
+}
+
+.bg-deep-orange {
+    background-color: #e67a00 !important;
+    /* Deep orange */
+}
+
+/* Override negative margins */
+.ad-space-section {
+    margin-top: 0 !important;
+    padding-top: 20px !important;
+    background-color: #e3e6e6;
+    /* Amazon background color */
+}
