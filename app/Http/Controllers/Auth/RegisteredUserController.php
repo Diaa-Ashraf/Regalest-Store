@@ -43,7 +43,9 @@ class RegisteredUserController extends Controller
             'is_active' => true,
         ]);
 
-        $user->assignRole('customer');
+        if (\Spatie\Permission\Models\Role::where('name', 'customer')->exists()) {
+            $user->assignRole('customer');
+        }
 
         event(new Registered($user));
 

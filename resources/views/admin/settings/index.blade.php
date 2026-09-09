@@ -102,8 +102,7 @@
                 <div>
                     <label class="block text-xs font-bold text-gray-700 mb-2">{{ __('العملة الافتراضية للتسعير') }}</label>
                     <select name="settings[default_currency]" class="w-full px-4 py-2.5 text-xs rounded-xl bg-[#F8F6F2] border border-[#EADBCC] text-[#18181B] focus:outline-none focus:ring-2 focus:ring-[#C5A059] focus:bg-white">
-                        <option value="USD" {{ ($settings['default_currency'] ?? 'USD') == 'USD' ? 'selected' : '' }}>دولار أمريكي (USD $)</option>
-                        <option value="SYP" {{ ($settings['default_currency'] ?? '') == 'SYP' ? 'selected' : '' }}>ليرة سورية (SYP)</option>
+                        <option value="USD" selected>دولار أمريكي (USD $)</option>
                     </select>
                 </div>
 

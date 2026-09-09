@@ -1,10 +1,7 @@
 @props(['product'])
 
 @php
-    $activeCurrency = get_active_currency();
-    $displayPrice = format_currency($product->final_price, $activeCurrency);
-    $sypPrice = format_currency($product->final_price, 'SYP');
-    $usdPrice = format_currency($product->final_price, 'USD');
+    $displayPrice = format_currency($product->final_price, 'USD');
     $productUrl = route('product.details', $product->slug ?? $product->id);
 @endphp
 
@@ -67,16 +64,10 @@
                 </span>
                 @if($product->has_discount)
                     <span class="text-[10px] text-gray-400 line-through tabular-nums">
-                        {{ format_currency($product->price, $activeCurrency) }}
+                        {{ format_currency($product->price, 'USD') }}
                     </span>
                 @endif
             </div>
-
-            @if($activeCurrency !== 'SYP')
-                <div class="text-[9px] text-[#71717A] font-sans tabular-nums">
-                    ≈ {{ $sypPrice }}
-                </div>
-            @endif
         </div>
     </div>
 
@@ -85,7 +76,7 @@
         @if($product->available_stock > 0)
             <button type="button" 
                     onclick="event.stopPropagation(); event.preventDefault(); window.addToCart({{ $product->id }}, this);"
-                    class="js-add-to-cart w-full py-2.5 rounded-full bg-[#18181B] hover:bg-[#C5A059] text-white text-xs font-bold transition-colors duration-300 shadow-xs hover:shadow-md active:scale-95 flex items-center justify-center gap-1.5 cursor-pointer" 
+                    class="js-add-to-cart w-full py-2.5 rounded-full bg-[#C5A059] hover:bg-[#18181B] text-white text-xs font-bold transition-colors duration-300 shadow-xs hover:shadow-md active:scale-95 flex items-center justify-center gap-1.5 cursor-pointer" 
                     data-id="{{ $product->id }}">
                 <span>{{ __('أضف إلى السلة') }}</span>
             </button>

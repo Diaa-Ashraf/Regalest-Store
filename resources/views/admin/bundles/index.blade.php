@@ -77,13 +77,21 @@
                                 @endif
                             </td>
                             <td class="py-4 px-4">
-                                @if($bundle->is_active && $bundle->is_valid)
-                                    <span class="px-2.5 py-1 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-700 text-[11px] font-bold">
-                                        {{ __('نشط') }}
+                                @if(!$bundle->is_active)
+                                    <span class="px-2.5 py-1 rounded-full bg-gray-100 border border-gray-200 text-gray-500 text-[11px] font-bold">
+                                        {{ __('معطل') }}
+                                    </span>
+                                @elseif($bundle->starts_at && $bundle->starts_at->isFuture())
+                                    <span class="px-2.5 py-1 rounded-full bg-amber-50 border border-amber-200 text-amber-700 text-[11px] font-bold" title="{{ __('يبدأ في: ') . $bundle->starts_at->format('Y-m-d H:i') }}">
+                                        ⏳ {{ __('لم يبدأ بعد') }}
+                                    </span>
+                                @elseif($bundle->ends_at && $bundle->ends_at->isPast())
+                                    <span class="px-2.5 py-1 rounded-full bg-rose-50 border border-rose-200 text-rose-600 text-[11px] font-bold" title="{{ __('انتهى في: ') . $bundle->ends_at->format('Y-m-d H:i') }}">
+                                        {{ __('منتهي') }}
                                     </span>
                                 @else
-                                    <span class="px-2.5 py-1 rounded-full bg-gray-50 border border-gray-200 text-gray-500 text-[11px] font-bold">
-                                        {{ __('غير نشط') }}
+                                    <span class="px-2.5 py-1 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-700 text-[11px] font-bold">
+                                        ✓ {{ __('نشط') }}
                                     </span>
                                 @endif
                             </td>

@@ -1,9 +1,7 @@
 @props(['bundle'])
 
 @php
-$activeCurrency = get_active_currency();
-$displayPrice = format_currency($bundle->bundle_price, $activeCurrency);
-$sypPrice = format_currency($bundle->bundle_price, 'SYP');
+$displayPrice = format_currency($bundle->bundle_price, 'USD');
 $usdPrice = format_currency($bundle->bundle_price, 'USD');
 $discountPercent = (int)$bundle->discount_percent;
 $hasSavings = (float)$bundle->original_total > (float)$bundle->bundle_price;
@@ -13,7 +11,7 @@ $savingsAmount = max(0, (float)$bundle->original_total - (float)$bundle->bundle_
 $storePhone = preg_replace('/[^0-9]/', '', settings('whatsapp_number', '963999999999'));
 $waText = "طلب عرض مجمع من Regalest Store 👑\n"
 . "▪️ العرض: " . $bundle->name . "\n"
-. "▪️ السعر الإجمالي: " . $usdPrice . " (" . $sypPrice . ")\n"
+. "▪️ السعر الإجمالي: " . $usdPrice . "\n"
 . "▪️ يحتوي على: " . $bundle->products->pluck('name')->implode(' + ');
 $waUrl = "https://wa.me/{$storePhone}?text=" . urlencode($waText);
 @endphp
@@ -55,7 +53,7 @@ $waUrl = "https://wa.me/{$storePhone}?text=" . urlencode($waText);
                     {{ $product->name }}
                 </span>
                 <span class="text-[10px] text-gray-400 font-medium tabular-nums mt-0.5">
-                    {{ format_currency($product->price, $activeCurrency) }}
+                    {{ format_currency($product->price, 'USD') }}
                 </span>
             </div>
 
@@ -70,7 +68,7 @@ $waUrl = "https://wa.me/{$storePhone}?text=" . urlencode($waText);
         @if($hasSavings)
         <div class="mt-3 text-center">
             <span class="inline-block px-3 py-1 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-700 text-[11px] font-bold">
-                💰 {{ __('توفير إجمالي:') }} {{ format_currency($savingsAmount, $activeCurrency) }}
+                💰 {{ __('توفير إجمالي:') }} {{ format_currency($savingsAmount, 'USD') }}
             </span>
         </div>
         @endif
@@ -87,27 +85,18 @@ $waUrl = "https://wa.me/{$storePhone}?text=" . urlencode($waText);
                     </span>
                     @if($hasSavings)
                     <span class="text-xs text-gray-400 line-through tabular-nums">
-                        {{ format_currency($bundle->original_total, $activeCurrency) }}
+                        {{ format_currency($bundle->original_total, 'USD') }}
                     </span>
                     @endif
                 </div>
             </div>
-
-            @if($activeCurrency !== 'SYP')
-            <div class="text-end">
-                <span class="text-[9px] text-gray-400 block">{{ __('بالليرة السورية') }}</span>
-                <span class="text-xs font-bold text-[#C5A059] tabular-nums">
-                    ≈ {{ $sypPrice }}
-                </span>
-            </div>
-            @endif
         </div>
 
         {{-- Action Buttons --}}
         <div class="flex items-center gap-2">
             <button type="button"
                 onclick="event.stopPropagation(); event.preventDefault(); window.addBundleToCart({{ $bundle->id }}, this);"
-                class="flex-1 js-add-bundle-to-cart py-2.5 px-3 rounded-full bg-[#18181B] hover:bg-[#C5A059] text-white font-bold text-xs shadow-xs hover:shadow-md transition-all duration-300 flex items-center justify-center gap-1.5 active:scale-95 cursor-pointer"
+                class="flex-1 js-add-bundle-to-cart py-2.5 px-3 rounded-full bg-[#C5A059] hover:bg-[#18181B] text-white font-bold text-xs shadow-xs hover:shadow-md transition-all duration-300 flex items-center justify-center gap-1.5 active:scale-95 cursor-pointer"
                 data-bundle-id="{{ $bundle->id }}">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />

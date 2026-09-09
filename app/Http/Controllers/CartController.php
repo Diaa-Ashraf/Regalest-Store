@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Services\CartService;
 use App\Services\AbandonedCartService;
+use App\Services\WhatsappService;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use Illuminate\View\View;
@@ -12,7 +13,8 @@ class CartController extends Controller
 {
     public function __construct(
         protected CartService $cartService,
-        protected AbandonedCartService $abandonedCartService
+        protected AbandonedCartService $abandonedCartService,
+        protected WhatsappService $whatsappService
     ) {}
 
     public function cart(): View
@@ -25,7 +27,9 @@ class CartController extends Controller
             $this->abandonedCartService->recordSnapshot($items, $totals, auth()->user());
         }
 
-        return view('site.cart', compact('items', 'totals'));
+        $whatsappUrl = $this->whatsappService->buildCartWhatsappUrl($items, $totals, auth()->user());
+
+        return view('site.cart', compact('items', 'totals', 'whatsappUrl'));
     }
 
     public function addtocart(Request $request, int $id): JsonResponse
@@ -114,20 +118,17 @@ class CartController extends Controller
                 'image' => $item['image'],
                 'quantity' => (int)$item['quantity'],
                 'price_usd' => $priceUsd,
-                'price_syp' => $priceUsd * $rate,
                 'formatted_price_usd' => '$' . number_format($priceUsd, 2),
-                'formatted_price_syp' => number_format($priceUsd * $rate, 0) . ' ' . __('ل.س'),
                 'total_usd' => $totalUsd,
-                'total_syp' => $totalUsd * $rate,
                 'formatted_total_usd' => '$' . number_format($totalUsd, 2),
-                'formatted_total_syp' => number_format($totalUsd * $rate, 0) . ' ' . __('ل.س'),
             ];
         }
 
         $taxRate = (float)($totals['tax_rate'] ?? 0);
         $taxAmount = (float)($totals['tax_amount'] ?? 0);
         $grandTotal = (float)($totals['grand_total'] ?? $subtotalUsd);
-        $grandTotalSyp = $grandTotal * $rate;
+
+        $whatsappUrl = $this->whatsappService->buildCartWhatsappUrl($items, $totals, auth()->user());
 
         return response()->json([
             'count' => $this->cartService->getCount(),
@@ -137,13 +138,11 @@ class CartController extends Controller
             'tax_amount' => $taxAmount,
             'grand_total' => $grandTotal,
             'subtotal_usd' => $subtotalUsd,
-            'subtotal_syp' => $subtotalSyp,
             'formatted_subtotal_usd' => '$' . number_format($subtotalUsd, 2),
-            'formatted_subtotal_syp' => number_format($subtotalSyp, 0) . ' ' . __('ل.س'),
             'formatted_subtotal' => format_currency($subtotalUsd),
             'formatted_tax' => format_currency($taxAmount),
             'formatted_total' => format_currency($grandTotal),
-            'formatted_grand_total_syp' => format_currency($grandTotal, 'SYP'),
+            'whatsapp_url' => $whatsappUrl,
         ]);
     }
 }

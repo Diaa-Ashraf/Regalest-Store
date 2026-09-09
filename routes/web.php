@@ -124,6 +124,12 @@ Route::prefix('admin')->middleware(['auth', 'admin'])->group(function () {
     // WhatsApp Analytics & Clicks
     Route::get('/analytics', [\App\Http\Controllers\Admin\AnalyticsController::class, 'index'])->name('analytics.index');
     Route::get('/analytics-admin', [\App\Http\Controllers\Admin\AnalyticsController::class, 'index'])->name('admin.analytics.index');
+    Route::delete('/analytics/{id}', [\App\Http\Controllers\Admin\AnalyticsController::class, 'destroy'])->name('admin.analytics.destroy');
+    Route::post('/analytics/bulk-destroy', [\App\Http\Controllers\Admin\AnalyticsController::class, 'bulkDestroy'])->name('admin.analytics.bulk-destroy');
+
+    // Comprehensive Reports & Performance
+    Route::get('/reports', [\App\Http\Controllers\Admin\ReportController::class, 'index'])->name('reports.index');
+    Route::get('/reports-admin', [\App\Http\Controllers\Admin\ReportController::class, 'index'])->name('admin.reports.index');
 
     // Abandoned Carts Follow-up
     Route::get('/abandoned-carts', [\App\Http\Controllers\Admin\AbandonedCartController::class, 'index'])->name('abandoned-carts.index');

@@ -14,16 +14,16 @@
     <div class="w-full max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8">
         
         {{-- Top Bar Controls: Product Counts, Sorting & Grid Switcher (Marketchino Style) --}}
-        <div class="bg-white border border-[#E5E7EB] rounded-2xl p-4 sm:p-5 mb-6 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div class="bg-white border border-[#E5E7EB] rounded-2xl p-3 sm:p-5 mb-6 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4">
             
             {{-- Right: Breadcrumb and Count --}}
-            <div class="flex items-center gap-3">
-                <nav class="text-xs text-[#71717A] flex items-center gap-2">
+            <div class="flex items-center justify-between sm:justify-start gap-2 sm:gap-3 flex-wrap">
+                <nav class="text-xs text-[#71717A] flex items-center gap-1.5 sm:gap-2">
                     <a href="{{ route('site.home') }}" class="hover:text-[#C5A059] transition-colors">{{ __('الرئيسية') }}</a>
                     <span>/</span>
                     <span class="text-[#18181B] font-semibold">{{ __('المتجر') }}</span>
                 </nav>
-                <span class="text-gray-300">|</span>
+                <span class="text-gray-300 hidden sm:inline">|</span>
                 <div class="text-xs text-[#71717A] font-medium tabular-nums">
                     @if(!empty($filters['bundles_only']))
                         {{ __('باقة') }} <span class="font-bold text-[#18181B]">{{ $bundles->count() }}</span> {{ __('متاحة') }}
@@ -36,10 +36,10 @@
             </div>
 
             {{-- Left: View Switcher, Sort Dropdown & Mobile Filter Button --}}
-            <div class="flex items-center justify-between md:justify-end gap-3 flex-wrap">
+            <div class="flex items-center justify-between sm:justify-end gap-2 sm:gap-3 w-full sm:w-auto">
                 
                 {{-- Sort Dropdown --}}
-                <form id="sortForm" action="{{ route('product.shop') }}" method="GET" class="flex items-center gap-2">
+                <form id="sortForm" action="{{ route('product.shop') }}" method="GET" class="flex items-center gap-1.5 sm:gap-2 flex-1 sm:flex-initial">
                     {{-- Preserve existing filters --}}
                     @if(!empty($filters['search'])) <input type="hidden" name="search" value="{{ $filters['search'] }}"> @endif
                     @if(!empty($filters['min_price'])) <input type="hidden" name="min_price" value="{{ $filters['min_price'] }}"> @endif
@@ -52,11 +52,11 @@
                         @endforeach
                     @endif
 
-                    <div class="flex items-center gap-1.5 text-xs text-[#71717A]">
-                        <span class="font-medium whitespace-nowrap">{{ __('فرز حسب:') }}</span>
+                    <div class="flex items-center gap-1.5 text-xs text-[#71717A] w-full sm:w-auto">
+                        <span class="font-medium whitespace-nowrap hidden xs:inline">{{ __('فرز:') }}</span>
                         <select name="sort" 
                                 onchange="document.getElementById('sortForm').submit()"
-                                class="bg-[#F8F9FA] border border-[#E5E7EB] rounded-xl px-3 py-1.5 text-xs font-semibold text-[#18181B] focus:outline-none focus:border-[#C5A059] cursor-pointer">
+                                class="w-full sm:w-auto bg-[#F8F9FA] border border-[#E5E7EB] rounded-xl px-2.5 sm:px-3 py-1.5 text-xs font-semibold text-[#18181B] focus:outline-none focus:border-[#C5A059] cursor-pointer">
                             <option value="latest" {{ ($filters['sort'] ?? '') === 'latest' ? 'selected' : '' }}>{{ __('الأحدث أولاً') }}</option>
                             <option value="price_asc" {{ ($filters['sort'] ?? '') === 'price_asc' ? 'selected' : '' }}>{{ __('السعر: الأقل إلى الأعلى') }}</option>
                             <option value="price_desc" {{ ($filters['sort'] ?? '') === 'price_desc' ? 'selected' : '' }}>{{ __('السعر: الأعلى إلى الأقل') }}</option>
@@ -99,8 +99,10 @@
                 {{-- Mobile Filter Trigger --}}
                 <button type="button" 
                         @click="mobileFiltersOpen = true"
-                        class="lg:hidden flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-[#18181B] text-white text-xs font-bold shadow-xs">
-                    <span>🔍</span>
+                        class="lg:hidden flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#C5A059] hover:bg-[#18181B] text-white text-xs font-bold shadow-xs transition-colors shrink-0">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
+                    </svg>
                     <span>{{ __('الفلاتر') }}</span>
                 </button>
             </div>
@@ -136,7 +138,7 @@
                             <div class="text-4xl">🎁</div>
                             <h3 class="text-base font-bold text-[#18181B]">{{ __('لا توجد باقات موفرة تطابق الفلاتر حالياً') }}</h3>
                             <div>
-                                <a href="{{ route('product.shop') }}" class="inline-block px-6 py-2.5 rounded-full bg-[#18181B] hover:bg-[#C5A059] text-white text-xs font-bold shadow-xs transition-colors">
+                                <a href="{{ route('product.shop') }}" class="inline-block px-6 py-2.5 rounded-full bg-[#C5A059] hover:bg-[#18181B] text-white text-xs font-bold shadow-xs transition-colors">
                                     {{ __('عرض كافة المنتجات') }}
                                 </a>
                             </div>
@@ -327,7 +329,7 @@
                             </div>
                             
                             <button type="submit" 
-                                    class="w-full py-2 px-3 bg-[#18181B] hover:bg-[#C5A059] text-white font-bold text-xs rounded-xl shadow-xs transition-colors">
+                                    class="w-full py-2 px-3 bg-[#C5A059] hover:bg-[#18181B] text-white font-bold text-xs rounded-xl shadow-xs transition-colors">
                                 {{ __('تطبيق السعر') }}
                             </button>
                         </div>
@@ -344,31 +346,53 @@
     <div x-show="mobileFiltersOpen" 
          class="fixed inset-0 z-50 overflow-hidden lg:hidden" 
          style="display: none;">
-        <div class="fixed inset-0 bg-black/50 backdrop-blur-sm" @click="mobileFiltersOpen = false"></div>
-        <div class="fixed inset-x-0 bottom-0 max-h-[85vh] bg-white rounded-t-3xl p-6 overflow-y-auto shadow-2xl flex flex-col z-50">
+        <div x-show="mobileFiltersOpen"
+             x-transition:enter="ease-out duration-300"
+             x-transition:enter-start="opacity-0"
+             x-transition:enter-end="opacity-100"
+             x-transition:leave="ease-in duration-200"
+             x-transition:leave-start="opacity-100"
+             x-transition:leave-end="opacity-0"
+             class="fixed inset-0 bg-black/60 backdrop-blur-xs" 
+             @click="mobileFiltersOpen = false"></div>
+        <div x-show="mobileFiltersOpen"
+             x-transition:enter="transform transition ease-out duration-300"
+             x-transition:enter-start="translate-y-full"
+             x-transition:enter-end="translate-y-0"
+             x-transition:leave="transform transition ease-in duration-200"
+             x-transition:leave-start="translate-y-0"
+             x-transition:leave-end="translate-y-full"
+             class="fixed inset-x-0 bottom-0 max-h-[88vh] bg-white rounded-t-3xl p-5 sm:p-6 overflow-y-auto shadow-2xl flex flex-col z-50 border-t border-[#EADBCC]">
             <div class="flex items-center justify-between pb-3 border-b border-gray-100 mb-4">
-                <h3 class="font-bold text-sm text-[#18181B]">🏷️ {{ __('تصفية المنتجات') }}</h3>
-                <button @click="mobileFiltersOpen = false" class="p-1 rounded-full text-gray-400 hover:text-gray-600">✕</button>
+                <h3 class="font-bold text-sm text-[#18181B] flex items-center gap-2">
+                    <span>🏷️</span>
+                    <span>{{ __('تصفية المنتجات') }}</span>
+                </h3>
+                <button @click="mobileFiltersOpen = false" class="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-gray-500 hover:text-gray-800 transition-colors">✕</button>
             </div>
 
             <form action="{{ route('product.shop') }}" method="GET" class="space-y-4">
+                @if(!empty($filters['sort']))
+                    <input type="hidden" name="sort" value="{{ $filters['sort'] }}">
+                @endif
+
                 <input type="text" 
                        name="search" 
                        value="{{ $filters['search'] ?? '' }}"
                        placeholder="{{ __('ابحث بالاسم...') }}" 
-                       class="w-full text-xs bg-[#F8F9FA] border border-gray-200 rounded-xl px-3 py-2.5">
+                       class="w-full text-xs bg-[#F8F9FA] border border-gray-200 rounded-xl px-3 py-2.5 text-[#18181B] focus:outline-none focus:border-[#C5A059]">
 
                 <div>
-                    <h4 class="font-bold text-xs text-[#18181B] mb-2">{{ __('الأقسام') }}</h4>
-                    <div class="space-y-2 max-h-48 overflow-y-auto">
+                    <h4 class="font-bold text-xs text-[#18181B] mb-2">{{ __('الأقسام والتصنيفات') }}</h4>
+                    <div class="space-y-1.5 max-h-48 overflow-y-auto no-scrollbar border border-gray-100 rounded-xl p-2 bg-[#F8F9FA]/50">
                         @foreach($categories as $cat)
                             @php
                                 $isChecked = in_array((string)$cat->id, array_map('strval', (array)($selectedCategories ?? [])));
                             @endphp
-                            <label class="flex items-center justify-between text-xs p-1.5">
+                            <label class="flex items-center justify-between text-xs p-1.5 rounded-lg hover:bg-white transition-colors cursor-pointer">
                                 <div class="flex items-center gap-2">
-                                    <input type="checkbox" name="categories[]" value="{{ $cat->id }}" {{ $isChecked ? 'checked' : '' }} class="w-4 h-4 rounded text-[#C5A059]">
-                                    <span>{{ $cat->name }}</span>
+                                    <input type="checkbox" name="categories[]" value="{{ $cat->id }}" {{ $isChecked ? 'checked' : '' }} class="w-4 h-4 rounded text-[#C5A059] focus:ring-[#C5A059] cursor-pointer">
+                                    <span class="font-medium text-[#18181B]">{{ $cat->name }}</span>
                                 </div>
                                 <span class="text-gray-400 text-[10px]">({{ $cat->active_products_count ?? 0 }})</span>
                             </label>
@@ -377,27 +401,33 @@
                 </div>
 
                 <div class="pt-2 border-t border-gray-100 space-y-2">
-                    <label class="flex items-center gap-2 text-xs">
-                        <input type="checkbox" name="bundles_only" value="1" {{ !empty($filters['bundles_only']) ? 'checked' : '' }} class="w-4 h-4 rounded text-[#C5A059]">
-                        <span class="font-bold text-[#C5A059]">🎁 {{ __('باقات وعروض مجمعة') }}</span>
+                    <label class="flex items-center gap-2 text-xs cursor-pointer p-1">
+                        <input type="checkbox" name="bundles_only" value="1" {{ !empty($filters['bundles_only']) ? 'checked' : '' }} class="w-4 h-4 rounded text-[#C5A059] focus:ring-[#C5A059]">
+                        <span class="font-bold text-[#C5A059]">🎁 {{ __('باقات وعروض مجمعة فقط') }}</span>
                     </label>
-                    <label class="flex items-center gap-2 text-xs">
-                        <input type="checkbox" name="discount_only" value="1" {{ !empty($filters['discount_only']) ? 'checked' : '' }} class="w-4 h-4 rounded text-[#C5A059]">
-                        <span>🔥 {{ __('تخفيضات المنتجات الفردية') }}</span>
+                    <label class="flex items-center gap-2 text-xs cursor-pointer p-1">
+                        <input type="checkbox" name="discount_only" value="1" {{ !empty($filters['discount_only']) ? 'checked' : '' }} class="w-4 h-4 rounded text-[#C5A059] focus:ring-[#C5A059]">
+                        <span class="font-semibold text-rose-600">🔥 {{ __('تخفيضات وعروض مميزة') }}</span>
                     </label>
                 </div>
 
                 <div class="grid grid-cols-2 gap-2 pt-2 border-t border-gray-100">
-                    <input type="number" name="min_price" value="{{ $filters['min_price'] ?? '' }}" placeholder="{{ __('أدنى سعر ($)') }}" class="w-full text-xs bg-[#F8F9FA] border border-gray-200 rounded-xl px-3 py-2">
-                    <input type="number" name="max_price" value="{{ $filters['max_price'] ?? '' }}" placeholder="{{ __('أعلى سعر ($)') }}" class="w-full text-xs bg-[#F8F9FA] border border-gray-200 rounded-xl px-3 py-2">
+                    <div>
+                        <span class="text-[10px] text-gray-400 block mb-1">{{ __('أدنى سعر ($)') }}</span>
+                        <input type="number" name="min_price" value="{{ $filters['min_price'] ?? '' }}" placeholder="0" class="w-full text-xs bg-[#F8F9FA] border border-gray-200 rounded-xl px-3 py-2 text-[#18181B] focus:outline-none focus:border-[#C5A059]">
+                    </div>
+                    <div>
+                        <span class="text-[10px] text-gray-400 block mb-1">{{ __('أعلى سعر ($)') }}</span>
+                        <input type="number" name="max_price" value="{{ $filters['max_price'] ?? '' }}" placeholder="1000" class="w-full text-xs bg-[#F8F9FA] border border-gray-200 rounded-xl px-3 py-2 text-[#18181B] focus:outline-none focus:border-[#C5A059]">
+                    </div>
                 </div>
 
                 <div class="space-y-2 pt-3">
-                    <button type="submit" class="w-full py-3 rounded-full bg-[#18181B] text-white font-bold text-xs shadow-sm">
-                        {{ __('عرض النتائج') }}
+                    <button type="submit" class="w-full py-3 rounded-full bg-[#18181B] hover:bg-[#C5A059] text-white font-bold text-xs shadow-sm transition-colors cursor-pointer">
+                        {{ __('عرض وتطبيق النتائج') }}
                     </button>
-                    <a href="{{ route('product.shop') }}" class="block text-center py-2 text-xs text-gray-500">
-                        {{ __('إلغاء الفلاتر') }}
+                    <a href="{{ route('product.shop') }}" class="block text-center py-2 text-xs text-gray-500 hover:text-rose-600 font-semibold transition-colors">
+                        {{ __('إعادة تعيين الفلاتر') }}
                     </a>
                 </div>
             </form>

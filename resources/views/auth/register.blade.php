@@ -127,7 +127,7 @@
                     </div>
                 @endif
 
-                <form method="POST" action="{{ route('client.register') }}" class="space-y-4">
+                <form method="POST" action="{{ route('register') }}" class="space-y-4">
                     @csrf
 
                     {{-- Name --}}
@@ -225,7 +225,7 @@
                 {{-- Login Link --}}
                 <div class="mt-7 text-center text-xs text-gray-500">
                     <span>{{ __('لديك حساب بالفعل؟') }}</span>
-                    <a href="{{ route('client.login') }}" class="font-bold text-[#C5A059] hover:underline ms-1">
+                    <a href="{{ route('login') }}" class="font-bold text-[#C5A059] hover:underline ms-1">
                         {{ __('تسجيل الدخول') }}
                     </a>
                 </div>

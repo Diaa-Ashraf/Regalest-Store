@@ -2,21 +2,21 @@
 
 if (!function_exists('get_active_currency')) {
     /**
-     * Get the active currency code from session or default settings
+     * Get the active currency code (Always USD)
      */
     function get_active_currency(): string
     {
-        return session('currency', settings('default_currency', 'USD'));
+        return 'USD';
     }
 }
 
 if (!function_exists('get_exchange_rate')) {
     /**
-     * Get USD to SYP exchange rate from settings
+     * Get exchange rate (Fixed to 1.0 for USD)
      */
     function get_exchange_rate(): float
     {
-        return (float) settings('exchange_rate', 15000.00);
+        return 1.0;
     }
 }
 
@@ -26,29 +26,17 @@ if (!function_exists('convert_price')) {
      */
     function convert_price(float $amountInUsd, ?string $currency = null): float
     {
-        $target = $currency ?? get_active_currency();
-
-        if ($target === 'SYP') {
-            return $amountInUsd * get_exchange_rate();
-        }
-
         return $amountInUsd;
     }
 }
 
 if (!function_exists('format_currency')) {
     /**
-     * Format a price according to currency
+     * Format a price in USD ($XX.XX)
      */
-    function format_currency(float $amountInUsd, ?string $currency = null): string
+    function format_currency(?float $amountInUsd, ?string $currency = null): string
     {
-        $target = $currency ?? get_active_currency();
-        $converted = convert_price($amountInUsd, $target);
-
-        if ($target === 'SYP') {
-            return number_format($converted, 0) . ' ' . __('ل.س');
-        }
-
-        return '$' . number_format($converted, 2);
+        $amountInUsd = (float) ($amountInUsd ?? 0.0);
+        return '$' . number_format($amountInUsd, 2);
     }
 }

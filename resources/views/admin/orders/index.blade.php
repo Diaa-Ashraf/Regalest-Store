@@ -75,14 +75,14 @@
                                 <div>{{ $order->order_number ?? '#' . $order->id }}</div>
                                 @if($order->payment_method)
                                     <span class="text-[10px] text-emerald-700 bg-emerald-50 border border-emerald-200 px-1.5 py-0.5 rounded-full font-sans font-medium">
-                                        واتساب
+                                        {{ __('واتساب') }}
                                     </span>
                                 @endif
                             </td>
                             <td class="py-4 px-4">
                                 <div class="font-bold text-[#18181B] flex items-center gap-1">
                                     <span>👤</span>
-                                    <span>{{ $order->user?->name ?? 'عميل المتجر' }}</span>
+                                    <span>{{ $order->user?->name ?? __('عميل المتجر') }}</span>
                                 </div>
                                 @if($order->phone)
                                     <div class="mt-1 flex items-center gap-1.5">
@@ -111,12 +111,12 @@
                                     <div class="space-y-0.5 max-w-[200px]">
                                         @foreach($order->orderItems->take(2) as $oItem)
                                             <div class="text-[11px] text-[#71717A] truncate">
-                                                • {{ $oItem->product->name ?? 'منتج' }} (×{{ $oItem->quantity }})
+                                                • {{ $oItem->product->name ?? __('منتج') }} (×{{ $oItem->quantity }})
                                             </div>
                                         @endforeach
                                         @if($order->orderItems->count() > 2)
                                             <div class="text-[10px] text-gray-400 font-bold">
-                                                + {{ $order->orderItems->count() - 2 }} منتجات إضافية
+                                                + {{ $order->orderItems->count() - 2 }} {{ __('منتجات إضافية') }}
                                             </div>
                                         @endif
                                     </div>
@@ -146,12 +146,12 @@
                                     @csrf
                                     @method('PUT')
                                     <select name="status" onchange="this.form.submit()" class="text-[11px] py-1 ps-2 pe-6 rounded-lg bg-[#F8F6F2] border border-[#EADBCC] text-[#18181B] focus:outline-none focus:ring-1 focus:ring-[#C5A059]">
-                                        <option value="pending" {{ $order->status === 'pending' ? 'selected' : '' }}>قيد الانتظار</option>
-                                        <option value="confirmed" {{ $order->status === 'confirmed' ? 'selected' : '' }}>مؤكد</option>
-                                        <option value="processing" {{ $order->status === 'processing' ? 'selected' : '' }}>قيد التجهيز</option>
-                                        <option value="shipped" {{ $order->status === 'shipped' ? 'selected' : '' }}>تم الشحن</option>
-                                        <option value="delivered" {{ $order->status === 'delivered' ? 'selected' : '' }}>تم التسليم</option>
-                                        <option value="cancelled" {{ $order->status === 'cancelled' ? 'selected' : '' }}>ملغي</option>
+                                        <option value="pending" {{ $order->status === 'pending' ? 'selected' : '' }}>{{ __('قيد الانتظار') }}</option>
+                                        <option value="confirmed" {{ $order->status === 'confirmed' ? 'selected' : '' }}>{{ __('مؤكد') }}</option>
+                                        <option value="processing" {{ $order->status === 'processing' ? 'selected' : '' }}>{{ __('قيد التجهيز') }}</option>
+                                        <option value="shipped" {{ $order->status === 'shipped' ? 'selected' : '' }}>{{ __('تم الشحن') }}</option>
+                                        <option value="delivered" {{ $order->status === 'delivered' ? 'selected' : '' }}>{{ __('تم التسليم') }}</option>
+                                        <option value="cancelled" {{ $order->status === 'cancelled' ? 'selected' : '' }}>{{ __('ملغي') }}</option>
                                     </select>
                                 </form>
                             </td>

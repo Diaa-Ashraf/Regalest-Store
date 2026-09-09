@@ -17,20 +17,22 @@ use App\Helpers\StorageHelper;
 
 class CategoryController extends Controller
 {
-    public function __construct ()
+    public function __construct()
     {
-         $this->middleware(['permission:show_categories'], ['only' => ['index']]);
-        $this->middleware(['permission:create_categories'], ['only' => ['store','create']]);
-        $this->middleware(['permission:edit_categories'], ['only' => ['edit','update']]);
-        $this->middleware(['permission:delete_categories'], ['only' => ['delete']]);
+        $this->middleware(['permission:manage-categories'])->only(['index', 'create', 'store', 'edit', 'update', 'destroy']);
     }
 
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(): \Illuminate\View\View
     {
-        $categories = Category::all();
+        $categories = Category::query()
+            ->select(['id', 'slug', 'image', 'created_at'])
+            ->with(['translations'])
+            ->withCount('products')
+            ->latest()
+            ->paginate(15);
 
         return view('admin.category.index', compact('categories'));
     }

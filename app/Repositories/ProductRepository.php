@@ -194,13 +194,18 @@ class ProductRepository
     }
 
     /**
-     * Find single active product with relations or fail
+     * Find single active product by ID or Slug with relations or fail
      */
-    public function findProductOrFail(int $id): Product
+    public function findProductOrFail(int|string $identifier): Product
     {
-        return Product::query()
+        $query = Product::query()
             ->with(['translations', 'category.translations', 'reviews.user'])
-            ->active()
-            ->findOrFail($id);
+            ->active();
+
+        if (is_numeric($identifier)) {
+            return $query->where('id', (int)$identifier)->firstOrFail();
+        }
+
+        return $query->where('slug', (string)$identifier)->firstOrFail();
     }
 }

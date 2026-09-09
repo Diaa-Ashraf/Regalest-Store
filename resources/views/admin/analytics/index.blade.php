@@ -53,25 +53,74 @@
         </div>
     </div>
 
-    {{-- Table of Recent Clicks --}}
-    <div class="bg-white border border-[#EADBCC] rounded-2xl shadow-sm overflow-hidden">
-        <div class="p-5 border-b border-[#EADBCC] flex items-center justify-between">
-            <h3 class="font-bold text-[#18181B] text-base flex items-center gap-2">
-                <span>📋</span>
-                <span>سجل آخر نقرات واتساب المسجلة</span>
-            </h3>
-            <span class="text-xs text-[#71717A] font-medium">محدّث تلقائياً</span>
+    {{-- Table of Recent Clicks with Bulk Selection & Delete Actions --}}
+    <div class="bg-white border border-[#EADBCC] rounded-2xl shadow-sm overflow-hidden"
+         x-data="{
+             selected: [],
+             selectAll: false,
+             toggleSelectAll() {
+                 if (this.selectAll) {
+                     this.selected = Array.from(document.querySelectorAll('.click-checkbox')).map(el => el.value);
+                 } else {
+                     this.selected = [];
+                 }
+             }
+         }">
+        <div class="p-4 sm:p-5 border-b border-[#EADBCC] flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-[#FAF8F5]">
+            <div class="flex items-center gap-3">
+                <h3 class="font-bold text-[#18181B] text-base flex items-center gap-2">
+                    <span>📋</span>
+                    <span>سجل آخر نقرات واتساب المسجلة</span>
+                </h3>
+                <span class="text-xs text-[#71717A] font-medium bg-white px-2.5 py-0.5 rounded-full border border-gray-200">
+                    ({{ $recentClicks->total() ?? count($recentClicks) }} سجل)
+                </span>
+            </div>
+
+            {{-- Bulk Actions Toolbar --}}
+            <div class="flex items-center gap-2 flex-wrap">
+                {{-- Delete Selected Button --}}
+                <form action="{{ route('admin.analytics.bulk-destroy') }}" method="POST" data-confirm data-confirm-message="هل أنت متأكد من رغبتك في حذف السجلات المحددة نهائياً؟" x-show="selected.length > 0" style="display: none;">
+                    @csrf
+                    <template x-for="id in selected" :key="id">
+                        <input type="hidden" name="ids[]" :value="id">
+                    </template>
+                    <button type="submit" class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold shadow-xs transition-colors cursor-pointer">
+                        <span>🗑️</span>
+                        <span>حذف المحدد (<span x-text="selected.length"></span>)</span>
+                    </button>
+                </form>
+
+                {{-- Clear All Records Button --}}
+                @if($recentClicks->total() > 0)
+                <form action="{{ route('admin.analytics.bulk-destroy') }}" method="POST" data-confirm data-confirm-message="تحذير: هل أنت متأكد من رغبتك في مسح وتفريغ كامل سجلات النقرات نهائياً؟ لا يمكن التراجع عن هذا الإجراء.">
+                    @csrf
+                    <input type="hidden" name="delete_all" value="1">
+                    <button type="submit" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-rose-200 bg-rose-50 hover:bg-rose-100 text-rose-700 text-xs font-semibold transition-colors cursor-pointer" title="حذف كامل السجلات">
+                        <span>⚠️</span>
+                        <span>تفريغ السجل بالكامل</span>
+                    </button>
+                </form>
+                @endif
+            </div>
         </div>
 
         <div class="overflow-x-auto">
             <table class="w-full text-right border-collapse">
                 <thead>
                     <tr class="border-b border-[#EADBCC] bg-[#F8F6F2]/70 text-[#71717A] text-xs uppercase font-semibold">
-                        <th class="py-3.5 px-5">النوع</th>
-                        <th class="py-3.5 px-5">بيانات العميل والتواصل</th>
-                        <th class="py-3.5 px-5">تفاصيل الطلب / المنتجات</th>
-                        <th class="py-3.5 px-5">الإجمالي</th>
-                        <th class="py-3.5 px-5">التاريخ والوقت</th>
+                        <th class="py-3.5 px-4 w-10 text-center">
+                            <input type="checkbox" 
+                                   x-model="selectAll" 
+                                   @change="toggleSelectAll()" 
+                                   class="w-4 h-4 rounded text-[#C5A059] focus:ring-[#C5A059] border-gray-300 cursor-pointer">
+                        </th>
+                        <th class="py-3.5 px-4">النوع</th>
+                        <th class="py-3.5 px-4">بيانات العميل والتواصل</th>
+                        <th class="py-3.5 px-4">تفاصيل الطلب / المنتجات</th>
+                        <th class="py-3.5 px-4">الإجمالي</th>
+                        <th class="py-3.5 px-4">التاريخ والوقت</th>
+                        <th class="py-3.5 px-4 text-center">الإجراءات</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-[#F0ECE1] text-sm text-[#18181B]">
@@ -84,8 +133,14 @@
                             $orderNumber = $orderInfo['order_number'] ?? null;
                             $totalAmount = $orderInfo['total'] ?? null;
                         @endphp
-                        <tr class="hover:bg-[#F8F6F2]/40 transition-colors">
-                            <td class="py-4 px-5 align-top">
+                        <tr class="hover:bg-[#F8F6F2]/40 transition-colors" :class="selected.includes('{{ $click->id }}') ? 'bg-[#FAF8F5]' : ''">
+                            <td class="py-4 px-4 align-top text-center">
+                                <input type="checkbox" 
+                                       value="{{ $click->id }}" 
+                                       x-model="selected" 
+                                       class="click-checkbox w-4 h-4 rounded text-[#C5A059] focus:ring-[#C5A059] border-gray-300 cursor-pointer">
+                            </td>
+                            <td class="py-4 px-4 align-top">
                                 @if($click->click_type === 'checkout')
                                     <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
                                         🛒 إتمام طلب
@@ -103,7 +158,7 @@
                                     </span>
                                 @endif
                             </td>
-                            <td class="py-4 px-5 align-top">
+                            <td class="py-4 px-4 align-top">
                                 <div class="font-bold text-[#18181B] flex items-center gap-1.5">
                                     <span>👤</span>
                                     <span>{{ $customerName }}</span>
@@ -122,7 +177,7 @@
                                     </span>
                                 @endif
                             </td>
-                            <td class="py-4 px-5 align-top text-xs">
+                            <td class="py-4 px-4 align-top text-xs">
                                 @if(!empty($orderInfo['items']))
                                     <div class="space-y-1">
                                         @foreach($orderInfo['items'] as $it)
@@ -138,7 +193,7 @@
                                     <span class="text-gray-400 text-xs">{{ $click->source_page ?? 'صفحة عامة' }}</span>
                                 @endif
                             </td>
-                            <td class="py-4 px-5 align-top font-bold text-sm text-[#C5A059] font-cinzel whitespace-nowrap">
+                            <td class="py-4 px-4 align-top font-bold text-sm text-[#C5A059] font-cinzel whitespace-nowrap">
                                 @if(!empty($orderInfo['formatted_total']))
                                     {{ $orderInfo['formatted_total'] }}
                                 @elseif(!is_null($totalAmount))
@@ -147,14 +202,25 @@
                                     -
                                 @endif
                             </td>
-                            <td class="py-4 px-5 align-top text-[#71717A] text-xs whitespace-nowrap">
+                            <td class="py-4 px-4 align-top text-[#71717A] text-xs whitespace-nowrap">
                                 <span class="font-medium">{{ $click->created_at?->format('Y-m-d') }}</span>
                                 <span class="block text-[10px] text-gray-400">{{ $click->created_at?->format('h:i A') }}</span>
+                            </td>
+                            <td class="py-4 px-4 align-top text-center">
+                                <form action="{{ route('admin.analytics.destroy', $click->id) }}" method="POST" data-confirm-message="هل أنت متأكد من رغبتك في حذف هذا السجل؟">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit" class="p-1.5 rounded-lg text-gray-400 hover:text-rose-600 hover:bg-rose-50 transition-colors" title="حذف هذا السجل">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                        </svg>
+                                    </button>
+                                </form>
                             </td>
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="5" class="py-12 text-center text-[#71717A]">
+                            <td colspan="7" class="py-12 text-center text-[#71717A]">
                                 لا توجد نقرات مسجلة حتى الآن.
                             </td>
                         </tr>

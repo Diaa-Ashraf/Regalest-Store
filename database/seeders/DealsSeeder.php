@@ -57,6 +57,8 @@ class DealsSeeder extends Seeder
         
         Deal::insert($deals);
         
-        $this->command->info('Created ' . count($deals) . ' deals successfully!');
+        if ($this->command) {
+            $this->command->info('Created ' . count($deals) . ' deals successfully!');
+        }
     }
 }

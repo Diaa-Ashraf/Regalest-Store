@@ -67,9 +67,6 @@
             <div class="text-2xl font-bold text-[#18181B] mb-2 font-cinzel">
                 ${{ number_format(data_get($metrics, 'total_revenue', data_get($metrics, 'total_sales', 648846)), 2) }}
             </div>
-            <div class="text-[11px] text-[#71717A]">
-                {{ __('بالليرة:') }} {{ number_format(data_get($metrics, 'revenue_syp', (data_get($metrics, 'total_revenue', 648846) * 15000)), 0) }} {{ __('ل.س') }}
-            </div>
         </div>
 
         <!-- WhatsApp Clicks Card -->
@@ -201,9 +198,9 @@
                     <div>
                         <div class="flex items-center gap-2 mb-0.5">
                             <span>⚙️</span>
-                            <span class="font-bold">{{ __('تعديل سعر الصرف والعملات') }}</span>
+                            <span class="font-bold">{{ __('إعدادات المتجر والشعار') }}</span>
                         </div>
-                        <span class="text-[11px] text-[#71717A] block ps-6">{{ __('الحالي: $1 = 15,000 ل.س') }}</span>
+                        <span class="text-[11px] text-[#71717A] block ps-6">{{ __('تعديل اسم المتجر، الشعار، والضرائب') }}</span>
                     </div>
                     <span class="text-[#C5A059] group-hover:translate-x-1 rtl:group-hover:-translate-x-1 transition-transform">←</span>
                 </a>

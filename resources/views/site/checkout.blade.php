@@ -185,11 +185,6 @@
                                     </span>
                                 </div>
                             </div>
-                            <div class="text-end">
-                                <span class="text-[11px] text-[#71717A] tabular-nums">
-                                    {{ __('المعادل بالليرة:') }} <strong class="text-[#18181B]">{{ format_currency($totals['grand_total'], 'SYP') }}</strong>
-                                </span>
-                            </div>
                         </div>
 
                         {{-- Submit Button --}}
@@ -299,13 +294,10 @@ document.addEventListener('DOMContentLoaded', function() {
                         tax_amount: 0,
                         grand_total: 0,
                         subtotal_usd: 0,
-                        subtotal_syp: 0,
                         formatted_subtotal_usd: '$0.00',
-                        formatted_subtotal_syp: '0 ل.س',
                         formatted_subtotal: '$0.00',
                         formatted_tax: '$0.00',
-                        formatted_total: '$0.00',
-                        formatted_grand_total_syp: '0 ل.س'
+                        formatted_total: '$0.00'
                     }
                 }));
 

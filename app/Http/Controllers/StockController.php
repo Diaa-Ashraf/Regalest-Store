@@ -12,18 +12,17 @@ class StockController extends Controller
 {
     public function __construct()
     {
-        $this->middleware(['permission:show_stocks'], ['only' => ['index']]);
-        $this->middleware(['permission:create_stocks'], ['only' => ['store', 'create']]);
-        $this->middleware(['permission:edit_stocks'], ['only' => ['edit', 'update']]);
-        $this->middleware(['permission:delete_stocks'], ['only' => ['delete']]);
+        $this->middleware(['permission:manage-products'])->only(['index', 'create', 'store', 'edit', 'update', 'destroy']);
     }
 
-
-    public function index()
+    public function index(): \Illuminate\View\View
     {
-        $products = Product::all();
-        $stocks = Stock::with('product')->paginate(10);
-        return view('admin.stocks.index', compact('stocks', 'products'));
+        $stocks = Stock::query()
+            ->with(['product.translations'])
+            ->latest()
+            ->paginate(15);
+
+        return view('admin.stocks.index', compact('stocks'));
     }
 
 public function create(Request $request)

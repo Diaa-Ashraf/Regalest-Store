@@ -45,7 +45,6 @@
                         <h3 class="text-white fw-bold mb-0 mt-1" style="color: #E5C568 !important;">
                             {{ format_currency($metrics['total_revenue'] ?? 0) }}
                         </h3>
-                        <small class="text-muted">بالليرة: {{ format_currency($metrics['total_revenue'] ?? 0, 'SYP') }}</small>
                     </div>
                     <div class="p-3 rounded-circle" style="background: rgba(76, 175, 80, 0.1); color: #4CAF50; font-size: 1.5rem;">
                         💵
@@ -145,8 +144,8 @@
                         <div class="small text-muted">ادمج ساعتين أو أكثر بسعر مخفض</div>
                     </a>
                     <a href="{{ route('admin.settings.index') }}" class="btn text-start p-3" style="background: #1c1c1c; color: #fff; border: 1px solid #333; border-radius: 8px;">
-                        ⚙️ <strong>تعديل سعر الصرف والعملات</strong>
-                        <div class="small text-muted">الحالي: 1$ = {{ number_format(get_exchange_rate(), 0) }} ل.س</div>
+                        ⚙️ <strong>إعدادات المتجر العامة</strong>
+                        <div class="small text-muted">الاسم، الشعار، التواصل، والضرائب</div>
                     </a>
                     <a href="{{ route('admin.abandoned-carts.index') }}" class="btn text-start p-3" style="background: #1c1c1c; color: #fff; border: 1px solid #333; border-radius: 8px;">
                         📞 <strong>متابعة السلات المتروكة</strong>

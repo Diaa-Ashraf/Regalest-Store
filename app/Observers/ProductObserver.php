@@ -19,9 +19,18 @@ class ProductObserver
 
     protected function clearProductCaches(): void
     {
-        Cache::forget('homepage_featured_products_ar_8');
-        Cache::forget('homepage_featured_products_en_8');
-        Cache::forget('homepage_latest_products_ar_12');
-        Cache::forget('homepage_latest_products_en_12');
+        $locales = ['ar', 'en'];
+        $limits = [4, 6, 8, 12, 16];
+
+        foreach ($locales as $locale) {
+            foreach ($limits as $limit) {
+                Cache::forget("homepage_featured_products_{$locale}_{$limit}");
+                Cache::forget("homepage_latest_products_{$locale}_{$limit}");
+                Cache::forget("homepage_bestsellers_{$locale}_{$limit}");
+                Cache::forget("homepage_daily_deals_{$locale}_{$limit}");
+            }
+            Cache::forget('site_nav_categories_' . $locale);
+            Cache::forget('site_homepage_categories_' . $locale);
+        }
     }
 }

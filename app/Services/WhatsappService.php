@@ -46,6 +46,46 @@ class WhatsappService
     }
 
     /**
+     * Build WhatsApp URL with live cart items and total breakdown
+     */
+    public function buildCartWhatsappUrl(array $cartItems, array $totals, ?User $user = null): string
+    {
+        $phone = $this->getStoreWhatsappNumber();
+        $storeName = settings('site_name', 'Regalest Store');
+        $currency = get_active_currency();
+
+        $msg = "👑 *طلب وتأكيد مقتنيات السلة | {$storeName}*\n";
+        $msg .= "━━━━━━━━━━━━━━━━━━━━\n";
+        $msg .= "مرحباً، أود إتمام وطلب المنتجات الموجودة في سلة التسوق الخاصة بي:\n\n";
+
+        $itemCounter = 1;
+        foreach (array_values($cartItems) as $item) {
+            $name = $item['name'] ?? 'منتج';
+            $qty = (int)($item['quantity'] ?? 1);
+            $unitPrice = (float)($item['price'] ?? 0);
+            $totalPrice = (float)($item['total'] ?? ($unitPrice * $qty));
+            $priceFormatted = format_currency($unitPrice, $currency);
+            $totalFormatted = format_currency($totalPrice, $currency);
+
+            $msg .= "{$itemCounter}. *{$name}*\n";
+            $msg .= "   • الكمية: {$qty}\n";
+            $msg .= "   • السعر: {$priceFormatted}\n";
+            $msg .= "   • الإجمالي: {$totalFormatted}\n\n";
+            $itemCounter++;
+        }
+
+        $subtotal = (float)($totals['subtotal'] ?? 0);
+        $grandTotal = (float)($totals['grand_total'] ?? $subtotal);
+
+        $msg .= "━━━━━━━━━━━━━━━━━━━━\n";
+        $msg .= "💵 *المجموع الإجمالي:* " . format_currency($grandTotal, 'USD') . "\n";
+        $msg .= "━━━━━━━━━━━━━━━━━━━━\n";
+        $msg .= "يرجى تزويدي بتفاصيل الشحن والتوصيل. شكراً لكم!";
+
+        return "https://wa.me/{$phone}?text=" . urlencode($msg);
+    }
+
+    /**
      * Build general inquiry WhatsApp URL for a product
      */
     public function buildProductInquiryUrl(string $productName, float $price, ?string $imageUrl = null, ?User $user = null): string
@@ -65,13 +105,6 @@ class WhatsappService
 
         $message .= "\n━━━━━━━━━━━━━━━━━━━━\n";
         $message .= "يرجى تزويدي بكافة التفاصيل وطريقة الشحن. شكراً لكم!";
-
-        $this->trackClick(
-            clickType: 'product_inquiry',
-            userId: $user?->id,
-            orderData: ['product_name' => $productName, 'price' => $price],
-            sourcePage: 'product_details'
-        );
 
         return "https://wa.me/{$phone}?text=" . urlencode($message);
     }
@@ -121,11 +154,7 @@ class WhatsappService
 
         $msg .= "━━━━━━━━━━━━━━━━━━━━\n";
         $orderTotal = (float) $order->total_price;
-        $exchangeRate = (float) $order->exchange_rate;
-        $msg .= "💵 *المجموع النهائي:* " . format_currency($orderTotal, $currency) . "\n";
-        if ($currency === 'SYP') {
-            $msg .= "ℹ️ *(تم الحساب بسعر صرف: " . number_format($exchangeRate, 0) . " ل.س / $)*\n";
-        }
+        $msg .= "💵 *المجموع النهائي:* " . format_currency($orderTotal, 'USD') . "\n";
         $msg .= "🚚 *طريقة الدفع:* الدفع عند الاستلام / تأكيد عبر واتساب\n";
         $msg .= "━━━━━━━━━━━━━━━━━━━━\n";
         $msg .= "شكراً لاختياركم {$storeName}! ✨";

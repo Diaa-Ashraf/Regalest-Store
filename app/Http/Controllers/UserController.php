@@ -11,16 +11,18 @@ use Illuminate\Support\Facades\Hash;
 
 class UserController extends Controller
 {
-    public function __construct ()
+    public function __construct()
     {
-        $this->middleware(['permission:create_users'], ['only' => ['store','create']]);
-        $this->middleware(['permission:edit_users'], ['only' => ['edit', 'update']]);
-        $this->middleware(['permission:show_users'], ['only' => ['index', 'show']]);
-        $this->middleware(['permission:delete_users'], ['only' => ['delete']]);
+        $this->middleware(['permission:manage-users'])->only(['index', 'create', 'store', 'edit', 'update', 'destroy']);
     }
-    public function index()
+    public function index(): \Illuminate\View\View
     {
-        $users = User::all();
+        $users = User::query()
+            ->select(['id', 'name', 'email', 'phone', 'is_active', 'created_at'])
+            ->with('roles')
+            ->latest()
+            ->paginate(15);
+
         return view('admin.users.index', compact('users'));
     }
 

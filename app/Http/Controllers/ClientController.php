@@ -10,12 +10,9 @@ use Illuminate\Http\Request;
 
 class ClientController extends Controller
 {
-    public function __construct ()
+    public function __construct()
     {
-        $this->middleware(['permission:create_customers'], ['only' => ['store','create']]);
-        $this->middleware(['permission:edit_customers'], ['only' => ['edit', 'update']]);
-        $this->middleware(['permission:show_customers'], ['only' => ['index', 'show']]);
-        $this->middleware(['permission:delete_customers'], ['only' => ['delete']]);
+        $this->middleware(['permission:manage-orders'])->only(['index', 'create', 'store', 'edit', 'update', 'destroy']);
     } 
  
     public function index(Request $request)

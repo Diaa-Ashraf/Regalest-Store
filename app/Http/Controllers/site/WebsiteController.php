@@ -21,14 +21,21 @@ class WebsiteController extends Controller
      */
     public function index(): View
     {
-        // 1. Hero banners (optional top slider)
-        $banners = Banner::where('status', true)->orderBy('id', 'desc')->get();
+        $locale = app()->getLocale();
 
-        // 2. Categories with active products count
-        $categories = Category::query()
-            ->with(['translations'])
-            ->withCount('activeProducts')
-            ->get();
+        // 1. Hero banners (cached 1 hour)
+        $banners = \Illuminate\Support\Facades\Cache::remember('homepage_banners', 3600, function () {
+            return Banner::where('status', true)->orderBy('position', 'asc')->orderBy('id', 'desc')->get();
+        });
+
+        // 2. Categories with active products count (cached 30 minutes)
+        $categories = \Illuminate\Support\Facades\Cache::remember('site_homepage_categories_' . $locale, 1800, function () {
+            return Category::query()
+                ->select(['id', 'slug', 'image'])
+                ->with(['translations'])
+                ->withCount('activeProducts')
+                ->get();
+        });
 
         // 3. Featured Products / Trending (الأكثر رواجاً / المميزة)
         $trendingProducts = $this->productRepo->getFeatured(16);
@@ -37,11 +44,14 @@ class WebsiteController extends Controller
         $dealsProducts = $this->productRepo->getDailyDeals(16);
 
         // Fallback to Deals relation if deals table has items
-        $deals = Deal::with(['product.translations', 'product.category.translations'])
-            ->active()
-            ->ordered()
-            ->take(16)
-            ->get();
+        $deals = \Illuminate\Support\Facades\Cache::remember('homepage_deals_list_' . $locale, 1800, function () {
+            return Deal::query()
+                ->with(['product.translations', 'product.category.translations'])
+                ->active()
+                ->ordered()
+                ->take(16)
+                ->get();
+        });
 
         // 5. Best Sellers (الأكثر مبيعاً)
         $bestSellers = $this->productRepo->getBestSellers(16);
@@ -50,24 +60,20 @@ class WebsiteController extends Controller
         $latestProducts = $this->productRepo->getLatest(16);
 
         // 7. Featured Categories (الفئات المميزة - 4 to 8 categories with products)
-        $featuredCategories = Category::query()
-            ->with(['translations'])
-            ->withCount('activeProducts')
-            ->has('activeProducts')
-            ->take(8)
-            ->get();
-
-        // If not enough with activeProducts, get any categories
+        $featuredCategories = $categories->filter(fn($c) => $c->active_products_count > 0)->take(8);
         if ($featuredCategories->isEmpty()) {
             $featuredCategories = $categories->take(8);
         }
 
-        // Bundles (عروض البكجات)
-        $bundles = Bundle::with(['products.translations'])
-            ->active()
-            ->ordered()
-            ->take(4)
-            ->get();
+        // Bundles (عروض البكجات - cached 30 minutes)
+        $bundles = \Illuminate\Support\Facades\Cache::remember('homepage_bundles_' . $locale, 1800, function () {
+            return Bundle::query()
+                ->with(['products.translations'])
+                ->active()
+                ->ordered()
+                ->take(4)
+                ->get();
+        });
 
         return view('site.index', compact(
             'banners',

@@ -15,15 +15,15 @@
                     {{-- Banner Item: Exact height and layout matching the HTML mockup --}}
                     <div class="relative w-full min-h-[360px] sm:min-h-[420px] md:min-h-[460px] flex items-center p-6 sm:p-12 lg:p-16 overflow-hidden bg-[#14161D] text-white">
 
-                        {{-- Background Image with overlay matching mockup --}}
+                        {{-- Background Image --}}
                         @if($banner->image_url)
                         <img src="{{ $banner->image_url }}"
                             alt="{{ $banner->title ?? 'Banner' }}"
-                            class="absolute inset-0 w-full h-full object-cover opacity-35">
+                            class="absolute inset-0 w-full h-full object-cover">
                         @endif
 
-                        {{-- Subtle Dark Gradient --}}
-                        <div class="absolute inset-0 bg-gradient-to-r from-black/80 via-black/40 to-transparent pointer-events-none"></div>
+                        {{-- Soft Gradient to ensure text readability without darkening the whole image --}}
+                        <div class="absolute inset-0 bg-gradient-to-r rtl:bg-gradient-to-l from-black/60 via-black/20 to-transparent pointer-events-none"></div>
 
                         {{-- Content Container --}}
                         <div class="relative z-10 max-w-xl space-y-4 text-start">
@@ -31,7 +31,7 @@
                             {{-- Mini Pill Tag --}}
                             <div>
                                 <span class="inline-block px-3 py-1 rounded-full bg-white/10 text-[#C5A059] text-xs font-semibold border border-white/10">
-                                    👑 {{ __('تشكيلة المقتنيات الملكية 2026') }}
+                                     {{ __('تشكيلة المقتنيات الملكية 2026') }}
                                 </span>
                             </div>
 
@@ -63,7 +63,7 @@
 
                                 @php
                                 $storePhone = preg_replace('/[^0-9]/', '', settings('whatsapp_number', '963999999999'));
-                                $waBannerUrl = "https://wa.me/{$storePhone}?text=" . urlencode("مرحباً، أود الاستفسار والطلب الفوري للتشكيلة الفاخرة 👑");
+                                $waBannerUrl = "https://wa.me/{$storePhone}?text=" . urlencode("مرحباً، أود الاستفسار والطلب الفوري للتشكيلة الفاخرة ");
                                 @endphp
                                 <a href="{{ $waBannerUrl }}"
                                     target="_blank"
@@ -246,17 +246,17 @@
             <button @click="switchTab('trending')"
                 :class="activeTab === 'trending' ? 'bg-[#C5A059] text-white shadow-sm font-bold' : 'text-[#52525B] hover:text-[#18181B] bg-white border border-gray-200'"
                 class="px-6 py-2.5 rounded-full text-xs sm:text-sm transition-all duration-200 shadow-xs">
-                ⭐ {{ __('الإعلانات المميزة') }}
+             {{ __('الإعلانات المميزة') }}
             </button>
             <button @click="switchTab('deals')"
                 :class="activeTab === 'deals' ? 'bg-[#C5A059] text-white shadow-sm font-bold' : 'text-[#52525B] hover:text-[#18181B] bg-white border border-gray-200'"
                 class="px-6 py-2.5 rounded-full text-xs sm:text-sm transition-all duration-200 shadow-xs">
-                🔥 {{ __('العروض اليومية') }}
+             {{ __('العروض اليومية') }}
             </button>
             <button @click="switchTab('best_sellers')"
                 :class="activeTab === 'best_sellers' ? 'bg-[#C5A059] text-white shadow-sm font-bold' : 'text-[#52525B] hover:text-[#18181B] bg-white border border-gray-200'"
                 class="px-6 py-2.5 rounded-full text-xs sm:text-sm transition-all duration-200 shadow-xs">
-                👑 {{ __('الأكثر مبيعاً') }}
+              {{ __('الأكثر مبيعاً') }}
             </button>
         </div>
 
@@ -312,7 +312,7 @@
             </button>
             @else
             <div class="py-12 text-center bg-white rounded-2xl border border-gray-100 p-8 shadow-xs">
-                <span class="text-4xl mb-2 block">🔥</span>
+               
                 <h3 class="text-base font-bold text-gray-800">{{ __('لا توجد عروض يومية حالياً') }}</h3>
                 <p class="text-xs text-gray-500 mt-1">{{ __('ترقبوا عروضنا وخصوماتنا الحصرية قريباً، أو يمكنكم إضافتها من لوحة التحكم.') }}</p>
             </div>
@@ -351,7 +351,7 @@
 <section class="py-12 sm:py-16 bg-[#F8F9FA] border-b border-[#E5E7EB] w-full overflow-hidden">
     <div class="w-full px-4 sm:px-8 lg:px-12">
         <div class="text-center mb-10">
-            <span class="text-xs font-bold tracking-widest text-[#C5A059] uppercase mb-1 block">💎 {{ __('عروض وتوفير حصري') }}</span>
+            <span class="text-xs font-bold tracking-widest text-[#C5A059] uppercase mb-1 block"> {{ __('عروض وتوفير حصري') }}</span>
             <h2 class="text-2xl sm:text-3xl lg:text-4xl font-black text-[#18181B] tracking-tight">{{ __('باقات موفّرة وعروض مجمعة') }}</h2>
             <p class="text-xs sm:text-sm text-[#71717A] mt-1.5 max-w-lg mx-auto leading-relaxed">{{ __('وفّر أكثر عند اقتناء الباقات والعروض الخاصة المجمعة المصممة خصيصاً لك') }}</p>
         </div>
@@ -404,7 +404,7 @@
 
         {{-- View All CTA Button --}}
         <div class="mt-10 text-center">
-            <a href="{{ route('product.shop') }}" class="inline-flex items-center gap-2 px-8 py-3 rounded-full bg-[#18181B] hover:bg-[#C5A059] text-white text-xs font-bold transition-all shadow-sm">
+            <a href="{{ route('product.shop') }}" class="inline-flex items-center gap-2 px-8 py-3 rounded-full bg-[#C5A059] hover:bg-[#18181B] text-white text-xs font-bold transition-all shadow-sm">
                 <span>{{ __('استكشف كافة المنتجات والتشكيلات') }}</span>
                 <span>&larr;</span>
             </a>

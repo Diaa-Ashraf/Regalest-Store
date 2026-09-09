@@ -400,7 +400,7 @@
             </div>
         @endif
 
-        <form method="POST" action="{{ route('client.login') }}">
+        <form method="POST" action="{{ route('login') }}">
             @csrf
 
             <div class="form-group">
@@ -451,7 +451,7 @@
 
         <div class="register-link">
             {{ __("Don't have an account?") }}
-            <a href="{{ route('client.register') }}">{{ __('Create Account') }}</a>
+            <a href="{{ route('register') }}">{{ __('Create Account') }}</a>
         </div>
 
         <div class="back-home">

@@ -77,9 +77,6 @@ class Order extends Model
 
     public function getFormattedTotalAttribute(): string
     {
-        if ($this->currency === 'SYP') {
-            return number_format($this->total_price * $this->exchange_rate, 0) . ' ل.س';
-        }
         return '$' . number_format($this->total_price, 2);
     }
 }

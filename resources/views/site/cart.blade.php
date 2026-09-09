@@ -14,7 +14,6 @@
              formatted_subtotal: '{{ $totals['formatted_subtotal'] }}',
              formatted_tax: '{{ $totals['formatted_tax'] }}',
              formatted_total: '{{ $totals['formatted_total'] }}',
-             formatted_grand_total_syp: '{{ format_currency($totals['grand_total'], 'SYP') }}',
              tax_rate: {{ $totals['tax_rate'] ?? 0 }}
          },
          init() {
@@ -209,7 +208,6 @@
                                         {{-- Unit Price (Desktop) --}}
                                         <div class="hidden sm:block w-1/6 text-center">
                                             <span class="font-bold text-sm text-[#18181B] tabular-nums" x-text="item.formatted_price_usd"></span>
-                                            <span class="text-[10px] text-[#71717A] block" x-text="'(' + item.formatted_price_syp + ')'"></span>
                                         </div>
 
                                         {{-- Quantity Stepper --}}
@@ -307,19 +305,14 @@
                                     <span class="text-2xl font-black text-[#C5A059] tabular-nums block leading-none" x-text="cart.formatted_total"></span>
                                 </div>
                             </div>
-                            <div class="text-end">
-                                <span class="text-[11px] text-[#71717A] tabular-nums">
-                                    {{ __('المعادل بالليرة:') }} <strong class="text-[#18181B]" x-text="cart.formatted_grand_total_syp"></strong>
-                                </span>
-                            </div>
                         </div>
 
                         {{-- CTAs --}}
                         <div class="space-y-3 pt-2">
                             <a href="{{ route('checkout.index') }}" 
-                               class="w-full py-3.5 rounded-full bg-[#18181B] hover:bg-[#C5A059] text-white text-xs font-bold transition-all shadow-sm hover:shadow-md flex items-center justify-center gap-2 active:scale-98">
+                               class="w-full py-3.5 rounded-full bg-[#C5A059] hover:bg-[#18181B] text-white text-xs font-bold transition-all shadow-sm hover:shadow-md flex items-center justify-center gap-2 active:scale-98">
                                 <span>💬</span>
-                                <span>{{ __('متابعة إتمام الطلب السريع') }} &larr;</span>
+                                <span>{{ __('متابعة إتمام الطلب وتأكيد الواتساب') }} &larr;</span>
                             </a>
 
                             <div class="bg-[#FAF8F5] border border-[#EADBCC]/60 rounded-2xl p-3.5 text-[11px] text-[#71717A] space-y-1.5">

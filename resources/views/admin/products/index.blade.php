@@ -97,7 +97,7 @@
                             <td class="py-4 px-4">
                                 @if($product->has_discount)
                                     <div class="flex items-center gap-1.5">
-                                        <span class="font-bold text-rose-600 font-cinzel">{{ format_currency($product->discount_price) }}</span>
+                                        <span class="font-bold text-rose-600 font-cinzel">{{ format_currency($product->final_price) }}</span>
                                         <span class="px-1.5 py-0.5 rounded-full bg-rose-50 border border-rose-200 text-rose-600 text-[10px] font-bold">-{{ $product->discount_percentage }}%</span>
                                     </div>
                                 @else
