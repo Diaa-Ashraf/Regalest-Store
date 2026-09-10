@@ -21,6 +21,10 @@ class SocialAuthController extends Controller
             return redirect()->route('login')->with('error', __('تسجيل الدخول بواسطة جوجل معطل حالياً من قبل الإدارة.'));
         }
 
+        if (empty(config('services.google.client_id')) || empty(config('services.google.client_secret'))) {
+            return redirect()->route('login')->with('error', __('لم يتم إعداد بيانات Google OAuth (Client ID & Secret) في ملف البيئة بعد.'));
+        }
+
         return Socialite::driver('google')->redirect();
     }
 
@@ -31,6 +35,10 @@ class SocialAuthController extends Controller
     {
         if (!settings('google_oauth_enabled', false)) {
             return redirect()->route('login')->with('error', __('خدمة تسجيل الدخول بواسطة جوجل معطلة.'));
+        }
+
+        if (empty(config('services.google.client_id')) || empty(config('services.google.client_secret'))) {
+            return redirect()->route('login')->with('error', __('لم يتم إعداد بيانات Google OAuth في ملف البيئة بعد.'));
         }
 
         try {

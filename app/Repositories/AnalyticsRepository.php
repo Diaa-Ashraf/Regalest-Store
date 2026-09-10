@@ -94,16 +94,17 @@ class AnalyticsRepository
      */
     public function getComprehensiveReports(string $period = 'month'): array
     {
-        $cacheKey = "admin_reports_v2_{$period}_" . Carbon::today()->format('Y-m-d');
+        $cacheKey = "admin_reports_v3_{$period}_" . Carbon::today()->format('Y-m-d');
 
-        return \Illuminate\Support\Facades\Cache::remember($cacheKey, 600, function () use ($period) {
+        return \Illuminate\Support\Facades\Cache::remember($cacheKey, 300, function () use ($period) {
             $now = Carbon::now();
             $startDate = match ($period) {
                 'today' => Carbon::today(),
                 'week' => Carbon::now()->startOfWeek(),
                 'month' => Carbon::now()->startOfMonth(),
                 'year' => Carbon::now()->startOfYear(),
-                default => Carbon::now()->subDays(30),
+                'all' => Carbon::createFromTimestamp(0),
+                default => Carbon::now()->startOfMonth(),
             };
 
             // 1. Sales & Revenue KPIs
@@ -175,25 +176,40 @@ class AnalyticsRepository
                 ->where('is_recovered', false)
                 ->sum('total_amount');
 
-            // 5. Daily Revenue & Orders Trend for Chart (Last 14 days or period)
-            $daysToFetch = match ($period) {
-                'today' => 1,
+            // 5. Daily Revenue & Orders Trend (continuous dates mapping)
+            $trendDays = match ($period) {
+                'today' => 7,
                 'week' => 7,
-                'year' => 365,
+                'month' => 30,
+                'year' => 30,
+                'all' => 30,
                 default => 30,
             };
 
-            $dailyTrend = Order::query()
+            $trendStartDate = Carbon::today()->subDays($trendDays - 1);
+
+            $rawTrend = Order::query()
                 ->select(
                     DB::raw('DATE(created_at) as date'),
                     DB::raw('count(*) as orders_count'),
                     DB::raw('SUM(CASE WHEN status != "cancelled" THEN total_price ELSE 0 END) as daily_revenue')
                 )
-                ->where('created_at', '>=', Carbon::today()->subDays($daysToFetch - 1))
+                ->where('created_at', '>=', $trendStartDate)
                 ->groupBy('date')
                 ->orderBy('date', 'ASC')
                 ->get()
-                ->toArray();
+                ->keyBy('date');
+
+            $dailyTrend = [];
+            for ($i = 0; $i < $trendDays; $i++) {
+                $dateStr = $trendStartDate->copy()->addDays($i)->format('Y-m-d');
+                $item = $rawTrend->get($dateStr);
+                $dailyTrend[] = [
+                    'date' => $dateStr,
+                    'orders_count' => (int)($item->orders_count ?? 0),
+                    'daily_revenue' => (float)($item->daily_revenue ?? 0.0),
+                ];
+            }
 
             // 6. Top Selling Products
             $topProducts = $this->getTopProducts(6);
