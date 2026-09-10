@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Helpers\StorageHelper;
 use App\Http\Requests\ProfileUpdateRequest;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -12,13 +13,33 @@ use Illuminate\View\View;
 class ProfileController extends Controller
 {
     /**
-     * Display the user's profile form.
+     * Display the user's luxury customer dashboard and profile.
      */
     public function edit(Request $request): View
     {
-        return view('profile.edit', [
-            'user' => $request->user(),
-        ]);
+        $user = $request->user();
+
+        // Eager load customer orders with their items and products
+        $orders = $user->orders()
+            ->with(['orderItems.product.translations'])
+            ->latest()
+            ->paginate(8);
+
+        // Load wishlist items for quick portal access
+        $wishlistItems = $user->wishlistItems()
+            ->with(['product.translations', 'product.category.translations'])
+            ->latest()
+            ->take(8)
+            ->get();
+
+        // Customer Account Key Metrics
+        $stats = [
+            'orders_count' => $user->orders()->count(),
+            'wishlist_count' => $user->wishlistItems()->count(),
+            'total_spent' => (float) $user->orders()->whereIn('status', ['confirmed', 'processing', 'shipped', 'delivered'])->sum('total_price'),
+        ];
+
+        return view('profile.edit', compact('user', 'orders', 'wishlistItems', 'stats'));
     }
 
     /**
@@ -26,15 +47,29 @@ class ProfileController extends Controller
      */
     public function update(ProfileUpdateRequest $request): RedirectResponse
     {
-        $request->user()->fill($request->validated());
+        $user = $request->user();
+        $validated = $request->validated();
 
-        if ($request->user()->isDirty('email')) {
-            $request->user()->email_verified_at = null;
+        // Handle Avatar upload if provided
+        if ($request->hasFile('avatar')) {
+            $avatarFilename = StorageHelper::uploadImage(
+                $request,
+                'avatar',
+                'avatars',
+                $user->name
+            );
+            $validated['avatar'] = $avatarFilename;
         }
 
-        $request->user()->save();
+        $user->fill($validated);
 
-        return Redirect::route('profile.edit')->with('status', 'profile-updated');
+        if ($user->isDirty('email')) {
+            $user->email_verified_at = null;
+        }
+
+        $user->save();
+
+        return Redirect::route('profile.edit')->with('status', 'profile-updated')->with('success', __('تم تحديث بيانات الملف الشخصي بنجاح.'));
     }
 
     /**
@@ -44,6 +79,9 @@ class ProfileController extends Controller
     {
         $request->validateWithBag('userDeletion', [
             'password' => ['required', 'current_password'],
+        ], [
+            'password.required' => __('يرجى إدخال كلمة المرور الحالية لتأكيد الحذف.'),
+            'password.current_password' => __('كلمة المرور الحالية غير صحيحة.'),
         ]);
 
         $user = $request->user();
@@ -55,6 +93,6 @@ class ProfileController extends Controller
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
-        return Redirect::to('/');
+        return Redirect::to('/')->with('success', __('تم حذف حسابك بنجاح. نتمنى رؤيتك قريباً.'));
     }
 }
