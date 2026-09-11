@@ -25,13 +25,27 @@ if (!function_exists('get_site_logo')) {
     function get_site_logo(): ?string
     {
         $logo = settings('site_logo');
-        if ($logo && \Illuminate\Support\Facades\Storage::disk('public')->exists($logo)) {
+        if (empty($logo)) {
+            return null;
+        }
+
+        if (str_starts_with($logo, 'http://') || str_starts_with($logo, 'https://') || str_starts_with($logo, '//')) {
+            return $logo;
+        }
+
+        if (str_starts_with($logo, '/storage/') || str_starts_with($logo, 'storage/')) {
+            return asset(ltrim($logo, '/'));
+        }
+
+        if (\Illuminate\Support\Facades\Storage::disk('public')->exists($logo)) {
             return \Illuminate\Support\Facades\Storage::url($logo);
         }
-        if ($logo && file_exists(public_path($logo))) {
+
+        if (file_exists(public_path($logo))) {
             return asset($logo);
         }
-        return null;
+
+        return asset('storage/' . ltrim($logo, '/'));
     }
 }
 
@@ -42,13 +56,26 @@ if (!function_exists('get_site_favicon')) {
     function get_site_favicon(): ?string
     {
         $favicon = settings('site_favicon');
-        if ($favicon && \Illuminate\Support\Facades\Storage::disk('public')->exists($favicon)) {
+        if (empty($favicon)) {
+            return get_site_logo();
+        }
+
+        if (str_starts_with($favicon, 'http://') || str_starts_with($favicon, 'https://') || str_starts_with($favicon, '//')) {
+            return $favicon;
+        }
+
+        if (str_starts_with($favicon, '/storage/') || str_starts_with($favicon, 'storage/')) {
+            return asset(ltrim($favicon, '/'));
+        }
+
+        if (\Illuminate\Support\Facades\Storage::disk('public')->exists($favicon)) {
             return \Illuminate\Support\Facades\Storage::url($favicon);
         }
-        if ($favicon && file_exists(public_path($favicon))) {
+
+        if (file_exists(public_path($favicon))) {
             return asset($favicon);
         }
-        // Fallback to logo if favicon is not set
-        return get_site_logo();
+
+        return asset('storage/' . ltrim($favicon, '/'));
     }
 }

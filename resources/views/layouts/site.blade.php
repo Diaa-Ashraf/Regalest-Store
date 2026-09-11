@@ -15,7 +15,7 @@
     @endphp
     @if($siteFavicon)
         <!-- Browser Tab Icon (Favicon) -->
-        <link rel="icon" type="image/x-icon" href="{{ $siteFavicon }}">
+        <link rel="icon" href="{{ $siteFavicon }}">
         <link rel="shortcut icon" href="{{ $siteFavicon }}">
         <link rel="apple-touch-icon" href="{{ $siteFavicon }}">
     @else

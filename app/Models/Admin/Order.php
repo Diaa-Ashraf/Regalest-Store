@@ -24,6 +24,7 @@ class Order extends Model
     protected $fillable = [
         'order_number',
         'user_id',
+        'customer_name',
         'client_id',
         'total_price',
         'status',
@@ -78,5 +79,18 @@ class Order extends Model
     public function getFormattedTotalAttribute(): string
     {
         return '$' . number_format($this->total_price, 2);
+    }
+
+    public function getCustomerDisplayNameAttribute(): string
+    {
+        if (!empty($this->customer_name)) {
+            return $this->customer_name;
+        }
+
+        if ($this->user && !empty($this->user->name)) {
+            return $this->user->name;
+        }
+
+        return __('طلب مباشر (زائر)');
     }
 }

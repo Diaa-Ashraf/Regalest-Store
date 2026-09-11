@@ -12,17 +12,45 @@ use Exception;
 class OrderService
 {
     /**
-     * Create an order from cart items
+     * Create an order from cart items, check stock, deduct inventory and save customer info
      */
     public function createOrder(array $customerData, array $cartItems, array $totals, ?User $user = null): Order
     {
         return DB::transaction(function () use ($customerData, $cartItems, $totals, $user) {
             $currency = get_active_currency();
             $exchangeRate = get_exchange_rate();
+            $customerName = trim($customerData['name'] ?? '') ?: ($user?->name ?? __('عميل مباشر'));
 
+            // 1. Validate stock availability before making any changes
+            foreach ($cartItems as $item) {
+                if (($item['type'] ?? 'product') === 'product') {
+                    $product = Product::lockForUpdate()->find($item['id']);
+                    if (!$product) {
+                        throw new Exception(__('المنتج المطلوب لم يعد متوفراً.'));
+                    }
+                    if ($product->stock_quantity < $item['quantity']) {
+                        throw new Exception(__('الكمية المطلوبة من ":product" غير متوفرة حالياً بالمخزون (المتبقي: :stock قطعة).', [
+                            'product' => $product->name,
+                            'stock' => $product->stock_quantity,
+                        ]));
+                    }
+                } elseif (($item['type'] ?? '') === 'bundle') {
+                    if (isset($item['products']) && is_array($item['products'])) {
+                        foreach ($item['products'] as $bundleProduct) {
+                            $product = Product::lockForUpdate()->find($bundleProduct['id']);
+                            if (!$product || $product->stock_quantity < $item['quantity']) {
+                                throw new Exception(__('أحد منتجات العرض الترويجي غير متوفر بالكمية المطلوبة.'));
+                            }
+                        }
+                    }
+                }
+            }
+
+            // 2. Create the order record
             $order = Order::create([
                 'order_number' => $this->generateOrderNumber(),
                 'user_id' => $user?->id,
+                'customer_name' => $customerName,
                 'total_price' => (float)($totals['grand_total'] ?? 0),
                 'status' => Order::STATUS_PENDING,
                 'address' => $customerData['address'] ?? '',
@@ -33,8 +61,9 @@ class OrderService
                 'exchange_rate' => $exchangeRate,
             ]);
 
+            // 3. Create order items and deduct stock
             foreach ($cartItems as $item) {
-                if ($item['type'] === 'product') {
+                if (($item['type'] ?? 'product') === 'product') {
                     $order->orderItems()->create([
                         'product_id' => $item['id'],
                         'price' => $item['price'],
@@ -51,8 +80,7 @@ class OrderService
                             'is_available' => $newStock > 0,
                         ]);
                     }
-                } elseif ($item['type'] === 'bundle') {
-                    // For bundles, handle associated products
+                } elseif (($item['type'] ?? '') === 'bundle') {
                     if (isset($item['products']) && is_array($item['products'])) {
                         foreach ($item['products'] as $bundleProduct) {
                             $product = Product::lockForUpdate()->find($bundleProduct['id']);
@@ -73,26 +101,81 @@ class OrderService
     }
 
     /**
-     * Update order status with corresponding timestamp
+     * Update order status with corresponding timestamp and automatic stock synchronization
      */
     public function updateStatus(Order $order, string $status, ?string $reason = null): Order
     {
-        $updateData = ['status' => $status];
+        return DB::transaction(function () use ($order, $status, $reason) {
+            $oldStatus = $order->status;
 
-        match ($status) {
-            Order::STATUS_CONFIRMED => $updateData['confirmed_at'] = now(),
-            Order::STATUS_SHIPPED => $updateData['shipped_at'] = now(),
-            Order::STATUS_DELIVERED => $updateData['delivered_at'] = now(),
-            Order::STATUS_CANCELLED => [
-                $updateData['cancelled_at'] = now(),
-                $updateData['cancel_reason'] = $reason,
-            ],
-            default => null,
-        };
+            // 1. If moving TO cancelled from an active status -> restore reserved stock
+            if ($oldStatus !== Order::STATUS_CANCELLED && $status === Order::STATUS_CANCELLED) {
+                $this->restoreStockForOrder($order);
+            }
+            // 2. If moving FROM cancelled to an active status -> re-deduct stock
+            elseif ($oldStatus === Order::STATUS_CANCELLED && $status !== Order::STATUS_CANCELLED) {
+                $this->reDeductStockForOrder($order);
+            }
 
-        $order->update($updateData);
+            $updateData = ['status' => $status];
 
-        return $order;
+            if ($status === Order::STATUS_CONFIRMED) {
+                $updateData['confirmed_at'] = now();
+            } elseif ($status === Order::STATUS_SHIPPED) {
+                $updateData['shipped_at'] = now();
+            } elseif ($status === Order::STATUS_DELIVERED) {
+                $updateData['delivered_at'] = now();
+            } elseif ($status === Order::STATUS_CANCELLED) {
+                $updateData['cancelled_at'] = now();
+                $updateData['cancel_reason'] = $reason;
+            }
+
+            $order->update($updateData);
+
+            return $order;
+        });
+    }
+
+    /**
+     * Restore stock for all items in an order (e.g. when order is cancelled or abandoned)
+     */
+    public function restoreStockForOrder(Order $order): void
+    {
+        $order->loadMissing('orderItems.product');
+
+        foreach ($order->orderItems as $item) {
+            if ($item->product_id) {
+                $product = Product::lockForUpdate()->find($item->product_id);
+                if ($product) {
+                    $newStock = $product->stock_quantity + $item->quantity;
+                    $product->update([
+                        'stock_quantity' => $newStock,
+                        'is_available' => true,
+                    ]);
+                }
+            }
+        }
+    }
+
+    /**
+     * Re-deduct stock for all items in an order (e.g. when reactivating a cancelled order)
+     */
+    public function reDeductStockForOrder(Order $order): void
+    {
+        $order->loadMissing('orderItems.product');
+
+        foreach ($order->orderItems as $item) {
+            if ($item->product_id) {
+                $product = Product::lockForUpdate()->find($item->product_id);
+                if ($product) {
+                    $newStock = max(0, $product->stock_quantity - $item->quantity);
+                    $product->update([
+                        'stock_quantity' => $newStock,
+                        'is_available' => $newStock > 0,
+                    ]);
+                }
+            }
+        }
     }
 
     /**

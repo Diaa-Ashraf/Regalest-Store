@@ -13,7 +13,7 @@
     @endphp
     @if($siteFavicon)
         <!-- Browser Tab Icon (Favicon) -->
-        <link rel="icon" type="image/x-icon" href="{{ $siteFavicon }}">
+        <link rel="icon" href="{{ $siteFavicon }}">
         <link rel="shortcut icon" href="{{ $siteFavicon }}">
         <link rel="apple-touch-icon" href="{{ $siteFavicon }}">
     @else
@@ -27,9 +27,6 @@
 
     <!-- Tailwind & App Assets via Vite -->
     @vite(['resources/css/app.css', 'resources/js/app.js'])
-
-    <!-- Alpine.js Direct Fallback (to guarantee interactive dropdowns & sidebar collapse) -->
-    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
 
     <style>
         [x-cloak] {
@@ -86,10 +83,19 @@
             
             <!-- Brand & Sidebar Toggle -->
             <div class="h-20 flex items-center justify-between px-4 sm:px-6 border-b border-[#EADBCC]">
+                @php
+                    $adminLogo = get_site_logo();
+                @endphp
                 <div class="flex items-center gap-3 overflow-hidden">
-                    <div class="w-10 h-10 rounded-xl bg-[#18181B] text-[#C5A059] flex items-center justify-center text-xl font-bold shadow-sm shrink-0">
-                        👑
-                    </div>
+                    @if($adminLogo)
+                        <div class="w-10 h-10 rounded-xl bg-[#18181B] p-1 flex items-center justify-center shadow-sm shrink-0 overflow-hidden border border-[#EADBCC]">
+                            <img src="{{ $adminLogo }}" alt="Logo" class="w-full h-full object-contain">
+                        </div>
+                    @else
+                        <div class="w-10 h-10 rounded-xl bg-[#18181B] text-[#C5A059] flex items-center justify-center text-xl font-bold shadow-sm shrink-0">
+                            👑
+                        </div>
+                    @endif
                     <div x-show="!sidebarCollapsed" x-transition.opacity.duration.200ms class="min-w-0">
                         <h1 class="font-bold text-sm text-[#18181B] leading-tight truncate">
                             {{ settings('site_name', 'Regalest Store') }}

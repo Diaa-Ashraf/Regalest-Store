@@ -12,9 +12,10 @@
                 @endphp
                 <a href="{{ route('site.home') }}" class="flex items-center gap-2.5 group">
                     @if($footerLogo)
-                    <img src="{{ $footerLogo }}" alt="{{ settings('site_name', 'Regalest Store') }}" class="h-9 max-w-[170px] object-contain drop-shadow-sm">
+                    <img src="{{ $footerLogo }}" alt="{{ settings('site_name', 'Regalest Store') }}" class="h-9 max-w-[45px] object-contain drop-shadow-sm rounded-lg">
                     @else
                     <span class="text-2xl">👑</span>
+                    @endif
                     <div>
                         <h3 class="font-royal text-lg font-bold tracking-wider text-[#18181B] group-hover:text-white transition-colors">
                             {{ settings('site_name', 'Regalest Store') }}
@@ -23,7 +24,6 @@
                             {{ settings('site_slogan', __('Haute Horlogerie • المتجر الملكي')) }}
                         </span>
                     </div>
-                    @endif
                 </a>
 
                 <p class="text-xs leading-relaxed text-[#18181B]/85 font-medium">

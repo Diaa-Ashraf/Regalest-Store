@@ -28,7 +28,7 @@ class UpdateOrderStatusRequest extends FormRequest
                     Order::STATUS_CANCELLED,
                 ]),
             ],
-            'cancel_reason' => 'nullable|required_if:status,' . Order::STATUS_CANCELLED . '|string|max:500',
+            'cancel_reason' => 'nullable|string|max:500',
         ];
     }
 

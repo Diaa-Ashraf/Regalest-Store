@@ -15,10 +15,28 @@
                 {{ __('إدارة ومتابعة الطلبات') }}
             </h1>
             <p class="text-xs sm:text-sm text-[#71717A] mt-1">
-                {{ __('متابعة طلبات واتساب والدفع عند الاستلام وتحديث حالات التجهيز والشحن والتسليم.') }}
+                {{ __('متابعة طلبات واتساب والدفع عند الاستلام وتحديث حالات التجهيز والشحن والتسليم ومزامنة المخزون تلقائياً.') }}
             </p>
         </div>
     </div>
+
+    @if (session('success'))
+        <div class="p-4 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-bold flex items-center gap-2 shadow-xs">
+            <span class="text-base">✓</span>
+            <span>{{ session('success') }}</span>
+        </div>
+    @endif
+
+    @if ($errors->any())
+        <div class="p-4 rounded-2xl bg-rose-50 border border-rose-200 text-rose-800 text-xs font-medium space-y-1 shadow-xs">
+            <span class="font-bold block text-sm">⚠️ {{ __('تنبيه في تحديث الطلب:') }}</span>
+            <ul class="list-disc list-inside">
+                @foreach ($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
+        </div>
+    @endif
 
     <!-- Filters Card -->
     <div class="bg-white border border-[#EADBCC] rounded-2xl p-4 sm:p-6 shadow-sm">
@@ -41,7 +59,7 @@
             </div>
 
             <div class="lg:col-span-3 flex gap-2">
-                <button type="submit" class="w-full py-2 px-4 rounded-xl bg-[#18181B] hover:bg-[#C5A059] text-white text-xs font-bold transition-all shadow-sm">
+                <button type="submit" class="w-full py-2 px-4 rounded-xl bg-[#18181B] hover:bg-[#C5A059] text-white text-xs font-bold transition-all shadow-sm cursor-pointer">
                     {{ __('تطبيق الفلتر') }}
                 </button>
                 @if(request()->hasAny(['search', 'status']))
@@ -72,17 +90,30 @@
                     @forelse($orders as $order)
                         <tr class="hover:bg-[#F8F6F2]/50 transition-colors">
                             <td class="py-4 px-6 font-bold text-[#18181B] font-cinzel">
-                                <div>{{ $order->order_number ?? '#' . $order->id }}</div>
+                                <a href="{{ route('orders.show', $order->id) }}" class="hover:text-[#C5A059] transition-colors block">
+                                    {{ $order->order_number ?? '#' . $order->id }}
+                                </a>
                                 @if($order->payment_method)
-                                    <span class="text-[10px] text-emerald-700 bg-emerald-50 border border-emerald-200 px-1.5 py-0.5 rounded-full font-sans font-medium">
-                                        {{ __('واتساب') }}
-                                    </span>
+                                    <div class="mt-1">
+                                        <span class="text-[10px] text-emerald-700 bg-emerald-50 border border-emerald-200 px-1.5 py-0.5 rounded-full font-sans font-medium">
+                                            {{ __('واتساب') }}
+                                        </span>
+                                    </div>
                                 @endif
                             </td>
                             <td class="py-4 px-4">
-                                <div class="font-bold text-[#18181B] flex items-center gap-1">
+                                <div class="font-bold text-[#18181B] flex items-center gap-1.5 flex-wrap">
                                     <span>👤</span>
-                                    <span>{{ $order->user?->name ?? __('عميل المتجر') }}</span>
+                                    <span>{{ $order->customer_display_name }}</span>
+                                    @if(!$order->user_id)
+                                        <span class="text-[9px] bg-amber-100 text-amber-800 font-bold px-1.5 py-0.5 rounded-md">
+                                            {{ __('طلب مباشر') }}
+                                        </span>
+                                    @else
+                                        <span class="text-[9px] bg-blue-100 text-blue-800 font-bold px-1.5 py-0.5 rounded-md">
+                                            {{ __('عضو مسجل') }}
+                                        </span>
+                                    @endif
                                 </div>
                                 @if($order->phone)
                                     <div class="mt-1 flex items-center gap-1.5">
@@ -137,21 +168,30 @@
                                     ];
                                     $colorClass = $statusColors[$order->status] ?? 'bg-gray-50 text-gray-700 border-gray-200';
                                 @endphp
-                                <span class="px-2.5 py-1 rounded-full border text-[11px] font-bold {{ $colorClass }}">
+                                <span class="px-2.5 py-1 rounded-full border text-[11px] font-bold {{ $colorClass }} inline-block">
                                     {{ __($order->status) }}
                                 </span>
+                                @if($order->status === 'cancelled')
+                                    <span class="block text-[9px] text-rose-600 font-bold mt-1">
+                                        ✓ {{ __('المخزون مسترجع') }}
+                                    </span>
+                                @endif
                             </td>
                             <td class="py-4 px-4">
-                                <form action="{{ route('admin.orders.update-status', $order->id) }}" method="POST" class="inline-flex items-center gap-1.5">
+                                <form id="cancelOrderForm_{{ $order->id }}" action="{{ route('admin.orders.update-status', $order->id) }}" method="POST" class="inline-flex items-center gap-1.5">
                                     @csrf
                                     @method('PUT')
-                                    <select name="status" onchange="this.form.submit()" class="text-[11px] py-1 ps-2 pe-6 rounded-lg bg-[#F8F6F2] border border-[#EADBCC] text-[#18181B] focus:outline-none focus:ring-1 focus:ring-[#C5A059]">
-                                        <option value="pending" {{ $order->status === 'pending' ? 'selected' : '' }}>{{ __('قيد الانتظار') }}</option>
-                                        <option value="confirmed" {{ $order->status === 'confirmed' ? 'selected' : '' }}>{{ __('مؤكد') }}</option>
+                                    <input type="hidden" name="cancel_reason" value="تم الإلغاء واسترجاع المخزون">
+                                    <select name="status" 
+                                            data-prev-status="{{ $order->status }}"
+                                            onchange="window.handleStatusChange(this, '{{ $order->id }}', '{{ $order->order_number ?? '#' . $order->id }}', '{{ addslashes($order->customer_display_name) }}')"
+                                            class="text-[11px] py-1 ps-2 pe-6 rounded-lg bg-[#F8F6F2] border border-[#EADBCC] text-[#18181B] focus:outline-none focus:ring-1 focus:ring-[#C5A059] cursor-pointer font-medium">
+                                        <option value="pending" {{ $order->status === 'pending' ? 'selected' : '' }}>{{ __('قيد الانتظار (محجوز)') }}</option>
+                                        <option value="confirmed" {{ $order->status === 'confirmed' ? 'selected' : '' }}>{{ __('مؤكد (قيد الشحن)') }}</option>
                                         <option value="processing" {{ $order->status === 'processing' ? 'selected' : '' }}>{{ __('قيد التجهيز') }}</option>
                                         <option value="shipped" {{ $order->status === 'shipped' ? 'selected' : '' }}>{{ __('تم الشحن') }}</option>
-                                        <option value="delivered" {{ $order->status === 'delivered' ? 'selected' : '' }}>{{ __('تم التسليم') }}</option>
-                                        <option value="cancelled" {{ $order->status === 'cancelled' ? 'selected' : '' }}>{{ __('ملغي') }}</option>
+                                        <option value="delivered" {{ $order->status === 'delivered' ? 'selected' : '' }}>{{ __('تم التسليم بنجاح') }}</option>
+                                        <option value="cancelled" {{ $order->status === 'cancelled' ? 'selected' : '' }}>{{ __('إلغاء واسترجاع المخزون') }}</option>
                                     </select>
                                 </form>
                             </td>
@@ -177,5 +217,151 @@
         @endif
     </div>
 
+    {{-- Luxury Custom Modal for Order Cancellation & Stock Restoration (Pure Vanilla JS for 100% Reliability) --}}
+    <div id="luxuryCancelOrderModal" 
+         class="fixed inset-0 z-50 hidden items-center justify-center p-4 bg-black/60 backdrop-blur-xs transition-opacity duration-200 opacity-0 pointer-events-none"
+         dir="rtl">
+        
+        <div id="luxuryCancelOrderCard" 
+             class="bg-white rounded-3xl border border-[#EADBCC] max-w-lg w-full p-6 sm:p-8 shadow-2xl space-y-5 transform transition-all duration-200 scale-95">
+            
+            <div class="flex items-center gap-3">
+                <div class="w-12 h-12 rounded-2xl bg-rose-50 border border-rose-200 text-rose-600 flex items-center justify-center text-2xl shrink-0 shadow-inner">
+                    🔄
+                </div>
+                <div>
+                    <h3 class="text-base sm:text-lg font-bold text-[#18181B]">{{ __('إلغاء الطلب واسترجاع كميات المخزون') }}</h3>
+                    <p class="text-xs text-[#71717A] mt-0.5">
+                        {{ __('الطلب:') }} <strong class="text-[#18181B]" id="cancelModalOrderNumber"></strong> &bull; <span id="cancelModalCustomerName"></span>
+                    </p>
+                </div>
+            </div>
+
+            <div class="p-4 rounded-2xl bg-amber-50 border border-amber-200 text-amber-900 text-xs leading-relaxed space-y-1">
+                <div class="font-bold flex items-center gap-1.5 text-amber-900">
+                    <span>📦</span>
+                    <span>{{ __('مزامنة المخزون التلقائية:') }}</span>
+                </div>
+                <p>
+                    {{ __('بمجرد تأكيد الإلغاء، سيقوم النظام تلقائياً بإعادة كامل كميات القطع المحجوزة في هذا الطلب إلى المخزون المتاح للبيع فوراً.') }}
+                </p>
+            </div>
+
+            <div class="space-y-1.5">
+                <label class="block text-xs font-bold text-gray-700">{{ __('سبب الإلغاء أو ملاحظة الإدارة (اختياري):') }}</label>
+                <input type="text" 
+                       id="cancelModalReasonInput" 
+                       value="{{ __('تم الإلغاء واسترجاع المخزون') }}"
+                       placeholder="{{ __('مثال: لم يرد العميل على واتساب، تم إلغاء الطلب بناءً على رغبته...') }}"
+                       class="w-full px-4 py-2.5 text-xs rounded-xl bg-[#F8F6F2] border border-[#EADBCC] text-[#18181B] focus:outline-none focus:ring-2 focus:ring-rose-500 focus:bg-white">
+            </div>
+
+            <div class="flex items-center gap-3 pt-2">
+                <button type="button" 
+                        onclick="window.confirmCancelOrder()"
+                        class="flex-1 py-3 px-4 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold transition-all shadow-md active:scale-98 cursor-pointer flex items-center justify-center gap-2">
+                    <span>✓</span>
+                    <span>{{ __('تأكيد الإلغاء واسترجاع المخزون') }}</span>
+                </button>
+
+                <button type="button" 
+                        onclick="window.closeCancelModal()"
+                        class="py-3 px-5 rounded-xl bg-gray-100 hover:bg-gray-200 text-[#18181B] text-xs font-semibold transition-colors cursor-pointer">
+                    {{ __('تراجع') }}
+                </button>
+            </div>
+
+        </div>
+    </div>
+
 </div>
+
+<script>
+let currentCancelOrderId = null;
+let currentCancelSelectEl = null;
+let currentPrevStatus = 'pending';
+
+window.handleStatusChange = function(selectEl, orderId, orderNumber, customerName) {
+    const newStatus = selectEl.value;
+    const prevStatus = selectEl.getAttribute('data-prev-status') || 'pending';
+
+    if (newStatus === 'cancelled') {
+        window.openCancelModal(orderId, orderNumber, customerName, selectEl, prevStatus);
+    } else {
+        selectEl.form.submit();
+    }
+};
+
+window.openCancelModal = function(orderId, orderNumber, customerName, selectEl, prevStatus) {
+    currentCancelOrderId = orderId;
+    currentCancelSelectEl = selectEl;
+    currentPrevStatus = prevStatus;
+
+    const numEl = document.getElementById('cancelModalOrderNumber');
+    const custEl = document.getElementById('cancelModalCustomerName');
+    const inputEl = document.getElementById('cancelModalReasonInput');
+    const modal = document.getElementById('luxuryCancelOrderModal');
+    const card = document.getElementById('luxuryCancelOrderCard');
+
+    if (numEl) numEl.textContent = orderNumber;
+    if (custEl) custEl.textContent = customerName;
+    if (inputEl) inputEl.value = '{{ __("تم الإلغاء واسترجاع المخزون") }}';
+
+    if (!modal) return;
+
+    modal.classList.remove('hidden');
+    modal.classList.add('flex');
+    requestAnimationFrame(() => {
+        modal.classList.remove('opacity-0', 'pointer-events-none');
+        modal.classList.add('opacity-100', 'pointer-events-auto');
+        if (card) {
+            card.classList.remove('scale-95');
+            card.classList.add('scale-100');
+        }
+    });
+};
+
+window.closeCancelModal = function() {
+    if (currentCancelSelectEl) {
+        currentCancelSelectEl.value = currentPrevStatus;
+    }
+    const modal = document.getElementById('luxuryCancelOrderModal');
+    const card = document.getElementById('luxuryCancelOrderCard');
+    if (!modal) return;
+
+    modal.classList.remove('opacity-100', 'pointer-events-auto');
+    modal.classList.add('opacity-0', 'pointer-events-none');
+    if (card) {
+        card.classList.remove('scale-100');
+        card.classList.add('scale-95');
+    }
+    setTimeout(() => {
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+    }, 200);
+
+    currentCancelOrderId = null;
+    currentCancelSelectEl = null;
+};
+
+window.confirmCancelOrder = function() {
+    if (!currentCancelOrderId) return;
+    const form = document.getElementById('cancelOrderForm_' + currentCancelOrderId);
+    if (form) {
+        const reasonInput = form.querySelector('input[name="cancel_reason"]');
+        const customReason = document.getElementById('cancelModalReasonInput')?.value;
+        if (reasonInput) {
+            reasonInput.value = customReason || '{{ __("تم الإلغاء واسترجاع المخزون") }}';
+        }
+        form.submit();
+    }
+};
+
+// Close on backdrop click
+document.getElementById('luxuryCancelOrderModal')?.addEventListener('click', function(e) {
+    if (e.target === this) {
+        window.closeCancelModal();
+    }
+});
+</script>
 @endsection

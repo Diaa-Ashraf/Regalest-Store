@@ -110,17 +110,18 @@ $waConciergeUrl = "https://wa.me/{$storePhone}?text=" . urlencode("مرحباً 
             @php
                 $headerLogo = get_site_logo();
             @endphp
-            <a href="{{ route('site.home') }}" class="flex items-center gap-1 group shrink-0">
+            <a href="{{ route('site.home') }}" class="flex items-center gap-2 group shrink-0">
                 @if($headerLogo)
-                    <img src="{{ $headerLogo }}" alt="{{ settings('site_name', 'REGALEST') }}" class="h-6 sm:h-9 md:h-10 max-w-[90px] xs:max-w-[120px] sm:max-w-[170px] object-contain drop-shadow-sm">
-                @else
-                    <div class="flex flex-col text-start">
-                        <span class="font-royal text-xs sm:text-lg md:text-2xl font-extrabold tracking-wider text-[#18181B] group-hover:text-white transition-colors leading-none truncate max-w-[110px] sm:max-w-none">
-                            {{ settings('site_name', 'REGALEST') }}
-                        </span>
-                        <span class="text-[6px] sm:text-[9px] uppercase tracking-widest text-[#18181B]/80 font-bold hidden xs:inline">PREMIUM GIFTS</span>
-                    </div>
+                    <img src="{{ $headerLogo }}" alt="{{ settings('site_name', 'REGALEST') }}" class="h-6 sm:h-9 md:h-10 max-w-[42px] sm:max-w-[55px] object-contain drop-shadow-sm rounded-lg">
                 @endif
+                <div class="flex flex-col text-start">
+                    <span class="font-royal text-xs sm:text-lg md:text-2xl font-extrabold tracking-wider text-[#18181B] group-hover:text-white transition-colors leading-none truncate max-w-[110px] sm:max-w-none">
+                        {{ settings('site_name', 'REGALEST') }}
+                    </span>
+                    <span class="text-[6px] sm:text-[9px] uppercase tracking-widest text-[#18181B]/80 font-bold hidden xs:inline">
+                        {{ settings('site_slogan', 'PREMIUM GIFTS') }}
+                    </span>
+                </div>
             </a>
         </div>
 
